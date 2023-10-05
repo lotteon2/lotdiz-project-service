@@ -21,7 +21,7 @@ public class SupportSignature extends BaseEntity {
     @ManyToOne(targetEntity = Project.class, fetch = FetchType.LAZY)
     private Project project;
 
-    @Column(name = "member_id", nullable = false)
+    @Column(name = "member_id", unique = true, nullable = false)
     private Long memberId;
 
     @Column(name = "support_signature_content", nullable = false, length = 500)

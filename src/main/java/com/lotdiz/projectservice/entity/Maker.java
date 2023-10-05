@@ -18,7 +18,7 @@ public class Maker extends BaseEntity {
     @Column(name = "maker_id")
     private Long makerId;
 
-    @Column(name = "member_id", nullable = false)
+    @Column(name = "member_id", unique = true, nullable = false)
     private Long memberId;
 
     @Column(name = "maker_name", nullable = false)
