@@ -58,3 +58,6 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
+
+endpoint:
+  funding-service: ${FUNDING_SERVICE_ENDPOINT}
