@@ -2,7 +2,6 @@ package com.lotdiz.projectservice.messagequeue;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lotdiz.projectservice.dto.response.TargetAmountAchievedProjectsDto;
@@ -23,12 +22,13 @@ public class SendTargetAmountAchievedProjects {
   private String url;
 
   public void sendTargetAmountAchievedProjectsMessageRequest(
-      List<TargetAmountAchievedProjectsDto> projectsDtoList) throws JsonProcessingException {
-    SendMessageRequest sendMessageRequest =
-        new SendMessageRequest(url, objectMapper.writeValueAsString(projectsDtoList));
-    SendMessageResult sendMessageResult = sqs.sendMessage(sendMessageRequest);
-    log.info(
-        "send target amount achieved projects data to sqs success {}",
-        sendMessageResult.toString());
+      List<TargetAmountAchievedProjectsDto> projectsDtoList) {
+    try {
+      SendMessageRequest sendMessageRequest =
+          new SendMessageRequest(url, objectMapper.writeValueAsString(projectsDtoList));
+      sqs.sendMessage(sendMessageRequest);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

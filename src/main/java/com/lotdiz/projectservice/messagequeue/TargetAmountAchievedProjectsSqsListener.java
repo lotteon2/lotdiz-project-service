@@ -55,12 +55,11 @@ public class TargetAmountAchievedProjectsSqsListener {
       circuitBreaker.run(
           () -> fundingServiceClient.getTargetAmountAchievedProjects(projectInformation).getData(),
           throwable -> new FundingServiceClientOutOfServiceException());
+      ack.acknowledge();
 
       // sqs 에 목표 펀딩 금액 달성 알림을 위한 데이터 전송
-
       sendTargetAmountAchievedProjects.sendTargetAmountAchievedProjectsMessageRequest(
           targetAmountAchievedProjects);
-      ack.acknowledge();
     }
   }
 }
