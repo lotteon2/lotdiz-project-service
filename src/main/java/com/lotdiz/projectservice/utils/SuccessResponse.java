@@ -1,0 +1,19 @@
+package com.lotdiz.projectservice.utils;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+@AllArgsConstructor
+public class SuccessResponse<T> {
+
+  private String code;
+  private String message;
+  private String detail;
+
+  @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+  private Object data;
+}
