@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class ProjectInformationForAchievedTargetAmountRequestDto {
 
   private Long projectId;
+  private Long memberId;
   private String projectName;
   private Long projectTargetAmount;
 

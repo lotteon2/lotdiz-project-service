@@ -10,7 +10,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
+//@FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
+@FeignClient(name = "fundingServiceClient", url = "https://e53d10c6-1cf7-4b4b-8ffb-47f7b1ed3862.mock.pstmn.io")
 public interface FundingServiceClient {
 
   @PostMapping("/fundings/check-target-amount-exceed")
@@ -19,7 +20,7 @@ public interface FundingServiceClient {
           List<GetTargetAmountCheckExceedRequestDto> getTargetAmountCheckExceedRequestDtos);
 
   @PostMapping("/fundings/target-amount-projects-information")
-  SuccessResponse<List<TargetAmountAchievedProjectsDto>> getTargetAmountAchievedProjects(
+  SuccessResponse<TargetAmountAchievedProjectsDto> getTargetAmountAchievedProjects(
       @RequestBody
           List<ProjectInformationForAchievedTargetAmountRequestDto>
               getTargetAmountCheckExceedRequestDtos);
