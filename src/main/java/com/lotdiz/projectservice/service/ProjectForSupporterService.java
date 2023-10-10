@@ -58,7 +58,6 @@ public class ProjectForSupporterService {
                     () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
                     throwable -> new FundingServiceClientOutOfServiceException());
 
-    // TODO project left outer join lotdeal  ?
     for (Project p : projects) {
       ProjectByCategoryResponseDto projectByCategoryResponseDto =
           lotdealRepository

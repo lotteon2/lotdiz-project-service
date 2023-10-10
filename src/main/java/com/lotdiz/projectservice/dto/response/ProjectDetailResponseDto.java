@@ -53,14 +53,14 @@ public class ProjectDetailResponseDto {
         .categoryName(project.getCategory().getCategoryName())
         .projectTag(project.getProjectTag())
         .numberOfBuyers(
-            fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers()) // TODO
+            fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers())
         .numberOfLikes(0L) // TODO
         .numberOfSupporter(numberOfSupporter)
         .fundingAchievementRate(
-            fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate()) // TODO
+            fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate())
         .accumulatedFundingAmount(
             fundingAchievementResultOfProjectDetailResponseDto
-                .getAccumulatedFundingAmount()) // TODO
+                .getAccumulatedFundingAmount())
         .projectStoryImageUrl(project.getProjectStoryImageUrl())
         .projectImages(projectImages)
         .lotdealDueTime(lotdealDueTime)
