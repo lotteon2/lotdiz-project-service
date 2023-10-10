@@ -1,18 +1,21 @@
 package com.lotdiz.projectservice.service;
 
+import com.lotdiz.projectservice.client.FundingServiceClient;
+import com.lotdiz.projectservice.client.MemberServiceClient;
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
+import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.repository.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,33 +30,51 @@ public class ProjectForSupporterService {
   private final ProjectImageRepository projectImageRepository;
   private final ProductRepository productRepository;
   private final SupportSignatureRepository supportSignatureRepository;
+  private final FundingServiceClient fundingServiceClient;
+  private final MemberServiceClient memberServiceClient;
+  private final CircuitBreakerFactory circuitBreakerFactory;
 
   @Transactional(readOnly = true)
   public List<ProjectByCategoryResponseDto> getProjectsByCategory(
       String categoryName, Pageable pageable) {
 
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+
     List<ProjectByCategoryResponseDto> projectByCategoryResponseDtoList = new ArrayList<>();
+    List<Long> projectIds = new ArrayList<>();
 
     Page<Project> projects =
         projectRepository
             .findByCategoryAndProjectIsAuthorized(categoryName, true, pageable)
             .orElseThrow(ProjectEntityNotFoundException::new);
+    projects.forEach(p -> projectIds.add(p.getProjectId()));
+
+    HashMap<String, FundingAchievementResultOfProjectResponseDto>
+        fundingAchievementResultOfProjectResponseDtoList =
+            circuitBreaker.run(
+                () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
+                throwable -> new HashMap<>());
 
     // TODO project left outer join lotdeal  ?
     for (Project p : projects) {
       ProjectByCategoryResponseDto projectByCategoryResponseDto =
           lotdealRepository
               .findByProjectAndLotdealing(p, LocalDateTime.now())
-              .map(l -> ProjectByCategoryResponseDto.fromProjectEntity(p, l.getLotdealDueTime()))
-              .orElseGet(() -> ProjectByCategoryResponseDto.fromProjectEntity(p, null));
+              .map(
+                  l ->
+                      ProjectByCategoryResponseDto.fromProjectEntity(
+                          p,
+                          fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
+                          l.getLotdealDueTime()))
+              .orElseGet(
+                  () ->
+                      ProjectByCategoryResponseDto.fromProjectEntity(
+                              p,
+                              fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
+                          null));
 
       projectByCategoryResponseDtoList.add(projectByCategoryResponseDto);
     }
-
-
-
-
-
     return projectByCategoryResponseDtoList;
   }
 

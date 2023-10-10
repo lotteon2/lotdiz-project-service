@@ -1,9 +1,12 @@
 package com.lotdiz.projectservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.HashMap;
 
 @Getter
 @Builder
@@ -15,5 +18,5 @@ public class SuccessResponse<T> {
   private String detail;
 
   @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-  private Object data;
+  private T data;
 }

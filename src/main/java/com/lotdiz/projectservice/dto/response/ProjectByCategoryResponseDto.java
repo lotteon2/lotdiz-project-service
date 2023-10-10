@@ -1,11 +1,8 @@
 package com.lotdiz.projectservice.dto.response;
 
-import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
-import com.lotdiz.projectservice.entity.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,19 +25,24 @@ public class ProjectByCategoryResponseDto {
   private String projectStatus;
   private Boolean isLike;
 
-  public static ProjectByCategoryResponseDto fromProjectEntity(Project project, LocalDateTime lotdealDueTime) {
+  public static ProjectByCategoryResponseDto fromProjectEntity(
+      Project project,
+      FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
+      LocalDateTime lotdealDueTime) {
 
     return ProjectByCategoryResponseDto.builder()
-            .projectId(project.getProjectId())
-            .projectName(project.getProjectName())
-            .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))
-            .projectThumbnailImageUrl(project.getProjectStoryImageUrl())
-            .makerName(project.getMaker().getMakerName())
-            .fundingAchievementRate(0L) // todo
-            .accumulatedFundingAmount(0L) // todo
-            .lotdealDueTime(lotdealDueTime)
-            .projectStatus(project.getProjectStatus().getMessage())
-            .isLike(false) // todo
-            .build();
+        .projectId(project.getProjectId())
+        .projectName(project.getProjectName())
+        .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))
+        .projectThumbnailImageUrl(project.getProjectStoryImageUrl())
+        .makerName(project.getMaker().getMakerName())
+        .fundingAchievementRate(
+            fundingAchievementResultOfProjectResponseDto.getFundingAchievementRate())
+        .accumulatedFundingAmount(
+            fundingAchievementResultOfProjectResponseDto.getAccumulatedFundingAmount())
+        .lotdealDueTime(lotdealDueTime)
+        .projectStatus(project.getProjectStatus().getMessage())
+        .isLike(false) // todo
+        .build();
   }
 }
