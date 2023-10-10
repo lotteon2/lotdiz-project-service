@@ -20,34 +20,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProjectRestController {
 
-    private final ProjectForSupporterService projectForSupporterService;
+  private final ProjectForSupporterService projectForSupporterService;
 
-    @GetMapping("/projects")
-    public ResponseEntity<SuccessResponse> getProjectsByCategory(@RequestParam String category, @PageableDefault(page=0, size=20) Pageable pageable) {
+  @GetMapping("/projects")
+  public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
+      getProjectsByCategory(
+          @RequestParam String category, @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
-        List<ProjectByCategoryResponseDto> projectByCategoryResponseDto = projectForSupporterService.getProjectsByCategory(category, pageable);
+    List<ProjectByCategoryResponseDto> projectByCategoryResponseDtoList =
+        projectForSupporterService.getProjectsByCategory(category, pageable);
 
-        return ResponseEntity.ok().body(
-                SuccessResponse.builder()
-                        .code(String.valueOf(HttpStatus.OK.value()))
-                        .message(HttpStatus.OK.name())
-                        .detail("카테고리 별, 프로젝트 조회 성공")
-                        .data(Map.of("projects", projectByCategoryResponseDto)).build());
-    }
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, List<ProjectByCategoryResponseDto>>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("카테고리 별, 프로젝트 조회 성공")
+                .data(Map.of("projects", projectByCategoryResponseDtoList))
+                .build());
+  }
 
-    @GetMapping("/projects/{projectId}")
-    public ResponseEntity<SuccessResponse> getProjectDetails(@PathVariable Long projectId) {
+  @GetMapping("/projects/{projectId}")
+  public ResponseEntity<SuccessResponse<Map<String, ProjectDetailResponseDto>>> getProjectDetails(
+      @PathVariable Long projectId) {
 
-        ProjectDetailResponseDto projectDetailResponseDto = projectForSupporterService.getProjectDetails(projectId);
+    ProjectDetailResponseDto projectDetailResponseDto =
+        projectForSupporterService.getProjectDetails(projectId);
 
-        return ResponseEntity.ok().body(
-                SuccessResponse.builder()
-                        .code(String.valueOf((HttpStatus.OK.value())))
-                        .message(HttpStatus.OK.name())
-                        .detail("프로젝트 상세 페이지 조회")
-                        .data(Map.of("projectDetail", projectDetailResponseDto)).build());
-
-    }
-
-
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, ProjectDetailResponseDto>>builder()
+                .code(String.valueOf((HttpStatus.OK.value())))
+                .message(HttpStatus.OK.name())
+                .detail("프로젝트 상세 페이지 조회 성공")
+                .data(Map.of("projectDetail", projectDetailResponseDto))
+                .build());
+  }
 }
