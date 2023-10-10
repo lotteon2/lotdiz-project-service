@@ -5,7 +5,6 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lotdiz.projectservice.dto.response.TargetAmountAchievedProjectsDto;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +21,7 @@ public class SendTargetAmountAchievedProjects {
   private String url;
 
   public void sendTargetAmountAchievedProjectsMessageRequest(
-      List<TargetAmountAchievedProjectsDto> projectsDtoList) {
+      TargetAmountAchievedProjectsDto projectsDtoList) {
     try {
       SendMessageRequest sendMessageRequest =
           new SendMessageRequest(url, objectMapper.writeValueAsString(projectsDtoList));

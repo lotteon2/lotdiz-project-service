@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.dto.response;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class TargetAmountAchievedProjectsDto {
 
   private Long fundingId;
-  private Long memberId;
   private String projectName;
-  private String memberName;
+  private List<Long> memberIds;
 }

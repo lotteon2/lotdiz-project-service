@@ -41,15 +41,15 @@ public class TargetAmountAchievedProjectsSqsListener {
       throws JsonProcessingException {
     TargetAmountAchievedProjectsMessageDto triggerMessage =
         objectMapper.readValue(message, TargetAmountAchievedProjectsMessageDto.class);
+    // event bridge 에서 받아온 트리거 메세지
     if (triggerMessage.getTrigger().equals("fundingTargetAmountCheck")) {
       // 목표 펀딩 금액 달성 수행
-      log.info("message of event bridge trigger = [{}]", triggerMessage.getTrigger());
       List<Project> allProjects = projectRepository.findAll();
       List<ProjectInformationForAchievedTargetAmountRequestDto> projectInformation =
           ProjectInformationForAchievedTargetAmountRequestDto.fromEntity(allProjects);
 
       // 목표 펀딩 금액 달성 프로젝트 id, 해당 프로젝트에 참여한 서포터 id, 프로젝트 메이커 id 받아오기
-      List<TargetAmountAchievedProjectsDto> targetAmountAchievedProjects =
+      TargetAmountAchievedProjectsDto targetAmountAchievedProjects =
           fundingServiceClient.getTargetAmountAchievedProjects(projectInformation).getData();
       CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
       circuitBreaker.run(
