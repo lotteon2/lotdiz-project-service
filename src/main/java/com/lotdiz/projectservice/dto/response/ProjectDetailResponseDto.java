@@ -2,7 +2,6 @@ package com.lotdiz.projectservice.dto.response;
 
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
-import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -40,6 +39,8 @@ public class ProjectDetailResponseDto {
       Project project,
       List<ProjectImageDto> projectImages,
       List<ProductDto> products,
+      FundingAchievementResultOfProjectDetailResponseDto
+          fundingAchievementResultOfProjectDetailResponseDto,
       Long numberOfSupporter,
       LocalDateTime lotdealDueTime) {
 
@@ -51,11 +52,15 @@ public class ProjectDetailResponseDto {
         .makerName(project.getMaker().getMakerName())
         .categoryName(project.getCategory().getCategoryName())
         .projectTag(project.getProjectTag())
-        .numberOfBuyers(0L) // TODO
+        .numberOfBuyers(
+            fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers()) // TODO
         .numberOfLikes(0L) // TODO
         .numberOfSupporter(numberOfSupporter)
-        .fundingAchievementRate(0L) // TODO
-        .accumulatedFundingAmount(0L) // TODO
+        .fundingAchievementRate(
+            fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate()) // TODO
+        .accumulatedFundingAmount(
+            fundingAchievementResultOfProjectDetailResponseDto
+                .getAccumulatedFundingAmount()) // TODO
         .projectStoryImageUrl(project.getProjectStoryImageUrl())
         .projectImages(projectImages)
         .lotdealDueTime(lotdealDueTime)
