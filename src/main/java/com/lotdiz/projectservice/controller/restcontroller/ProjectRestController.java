@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,13 @@ public class ProjectRestController {
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
       getProjectsByCategory(
           @RequestHeader Long memberId,
-          @PathVariable String categoryName,  @PageableDefault(page = 0, sort = {"createdAt"}, size = 20) Pageable pageable) {
+          @PathVariable String categoryName,
+          @PageableDefault(
+                  page = 0,
+                  size = 20,
+                  sort = {"createdAt"},
+                  direction = Sort.Direction.DESC)
+              Pageable pageable) {
 
     List<ProjectByCategoryResponseDto> projectByCategoryResponseDtoList =
         projectForSupporterService.getProjectsByCategory(categoryName, pageable, memberId);
