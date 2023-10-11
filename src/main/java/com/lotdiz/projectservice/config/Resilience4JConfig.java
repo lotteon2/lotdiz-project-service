@@ -17,10 +17,11 @@ public class Resilience4JConfig {
 
     CircuitBreakerConfig circuitBreakerConfig =
         CircuitBreakerConfig.custom()
-            .failureRateThreshold(25)
-            .waitDurationInOpenState(Duration.ofMillis(1000))
-            .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED)
-            .slidingWindowSize(2)
+            .failureRateThreshold(25) // 100번중에 25번 실패할 경우 작동
+            .waitDurationInOpenState(Duration.ofMillis(1000)) // CircuitBreaker가 작동하면 1초동안 Open상태 유지
+            .slidingWindowType(
+                CircuitBreakerConfig.SlidingWindowType.COUNT_BASED) // 개수 기반으로 metric 수집
+            .slidingWindowSize(2) // 통계 큐 사이즈
             .build();
 
     TimeLimiterConfig timeLimiterConfig =

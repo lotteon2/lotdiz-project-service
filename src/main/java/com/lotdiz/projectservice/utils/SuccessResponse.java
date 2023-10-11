@@ -1,16 +1,14 @@
 package com.lotdiz.projectservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.HashMap;
-
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class SuccessResponse<T> {
 
   private String code;

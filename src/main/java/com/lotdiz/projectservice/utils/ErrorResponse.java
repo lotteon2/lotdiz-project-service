@@ -1,12 +1,13 @@
 package com.lotdiz.projectservice.utils;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
 
   private String code;
