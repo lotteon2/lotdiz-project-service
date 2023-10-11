@@ -8,6 +8,7 @@ import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTarget
 import com.lotdiz.projectservice.dto.response.TargetAmountAchievedProjectsDto;
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
+import com.lotdiz.projectservice.mapper.ProjectMapper;
 import com.lotdiz.projectservice.repository.ProjectRepository;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class TargetAmountAchievedProjectsSqsListener {
   private final ProjectRepository projectRepository;
   private final CircuitBreakerFactory circuitBreakerFactory;
   private final SendTargetAmountAchievedProjects sendTargetAmountAchievedProjects;
+  private final ProjectMapper projectMapper;
 
   @SqsListener(
       value = "${cloud.aws.sqs.funding-target-amount-notification-queue.name}",
@@ -46,7 +48,7 @@ public class TargetAmountAchievedProjectsSqsListener {
       // 목표 펀딩 금액 달성 수행
       List<Project> allProjects = projectRepository.findAll();
       List<ProjectInformationForAchievedTargetAmountRequestDto> projectInformation =
-          ProjectInformationForAchievedTargetAmountRequestDto.fromEntity(allProjects);
+          projectMapper.getListOfProjectInformationForAchievedTargetAmountRequestDto(allProjects);
 
       // 목표 펀딩 금액 달성 프로젝트 id, 해당 프로젝트에 참여한 서포터 id, 프로젝트 메이커 id 받아오기
       TargetAmountAchievedProjectsDto targetAmountAchievedProjects =
