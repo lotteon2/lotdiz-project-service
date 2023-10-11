@@ -4,11 +4,10 @@ import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.client.MemberServiceClient;
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
-import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
-import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
-import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
-import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
+import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
+import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.entity.Project;
+import com.lotdiz.projectservice.entity.SupportSignature;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -111,10 +111,14 @@ public class ProjectForSupporterService {
     Long numberOfSupporter = supportSignatureRepository.countByProject(project);
 
     Long likeCount =
-            (Long)
-                    circuitBreaker.run(
-                            () -> memberServiceClient.getLikeCount(projectId).getData().get(Long.toString(projectId)),
-                            throwable -> new MemberServiceClientOutOfServiceException());
+        (Long)
+            circuitBreaker.run(
+                () ->
+                    memberServiceClient
+                        .getLikeCount(projectId)
+                        .getData()
+                        .get(Long.toString(projectId)),
+                throwable -> new MemberServiceClientOutOfServiceException());
 
     FundingAchievementResultOfProjectDetailResponseDto
         fundingAchievementResultOfProjectDetailResponseDto =
@@ -148,5 +152,56 @@ public class ProjectForSupporterService {
                         null));
 
     return projectDetailResponseDto;
+  }
+
+  @Transactional
+  public void createSupportSignature(
+      Long memberId, Long projectId, SupportSignatureRequestDto supportSignatureContents) {
+
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    SupportSignature supportSignature =
+        SupportSignature.builder()
+            .project(project)
+            .memberId(memberId)
+            .supportSignatureContent(supportSignatureContents.getSupportSignatureContents())
+            .build();
+
+    if (supportSignatureRepository.existsByProjectAndMemberId(project, memberId)) {
+      throw new DuplicateKeyException("지지서명에 중복된 데이터가 있습니다.");
+    }
+    supportSignatureRepository.save(supportSignature);
+  }
+
+  @Transactional(readOnly = true)
+  public List<SupportSignatureResponseDto> getSupportSignature(Long projectId, Pageable pageable) {
+
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+    List<SupportSignatureResponseDto> supportSignatureResponseDtoList = new ArrayList<>();
+
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    Page<SupportSignature> supportSignatureList =
+        supportSignatureRepository.findByProject(project, pageable);
+
+    List<Long> memberIds =
+        supportSignatureList.stream()
+            .map(supportSignature -> supportSignature.getMemberId())
+            .collect(Collectors.toList());
+
+    Map<String, MemberInfoResponseDto> memberInfoResponseDtos =
+        (Map<String, MemberInfoResponseDto>)
+            circuitBreaker.run(
+                () -> memberServiceClient.getMemberInfo(memberIds).getData(),
+                throwable -> new MemberServiceClientOutOfServiceException());
+
+    for (SupportSignature s : supportSignatureList) {
+      supportSignatureResponseDtoList.add(
+          SupportSignatureResponseDto.toDto(s, memberInfoResponseDtos.get(Long.toString(s.getMemberId()))));
+    }
+
+    return supportSignatureResponseDtoList;
   }
 }
