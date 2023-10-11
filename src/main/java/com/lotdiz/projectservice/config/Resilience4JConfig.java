@@ -14,6 +14,7 @@ public class Resilience4JConfig {
 
   @Bean
   public Customizer<Resilience4JCircuitBreakerFactory> globalCustomConfiguration() {
+
     CircuitBreakerConfig circuitBreakerConfig =
         CircuitBreakerConfig.custom()
             .failureRateThreshold(25) // 100번중에 25번 실패할 경우 작동

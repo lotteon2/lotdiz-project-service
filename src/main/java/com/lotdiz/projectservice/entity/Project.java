@@ -23,8 +23,8 @@ public class Project extends BaseEntity {
     @ManyToOne(targetEntity = Maker.class, fetch = FetchType.LAZY)
     private Maker maker;
 
-    @ManyToOne(targetEntity = Category.class, fetch=FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
     private Category category;
 
     @Column(name = "project_name", nullable = false)
