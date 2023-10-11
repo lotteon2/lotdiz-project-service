@@ -39,6 +39,7 @@ public class ProjectDetailResponseDto {
       Project project,
       List<ProjectImageDto> projectImages,
       List<ProductDto> products,
+      Long likeCount,
       FundingAchievementResultOfProjectDetailResponseDto
           fundingAchievementResultOfProjectDetailResponseDto,
       Long numberOfSupporter,
@@ -54,7 +55,7 @@ public class ProjectDetailResponseDto {
         .projectTag(project.getProjectTag())
         .numberOfBuyers(
             fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers())
-        .numberOfLikes(0L) // TODO
+        .numberOfLikes(likeCount)
         .numberOfSupporter(numberOfSupporter)
         .fundingAchievementRate(
             fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate())

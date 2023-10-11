@@ -10,6 +10,7 @@ import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
+import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.repository.*;
 import java.time.LocalDateTime;
@@ -38,7 +39,7 @@ public class ProjectForSupporterService {
 
   @Transactional(readOnly = true)
   public List<ProjectByCategoryResponseDto> getProjectsByCategory(
-      String categoryName, Pageable pageable) {
+      String categoryName, Pageable pageable, Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
 
@@ -46,10 +47,15 @@ public class ProjectForSupporterService {
     List<Long> projectIds = new ArrayList<>();
 
     Page<Project> projects =
-        projectRepository
-            .findByCategoryAndProjectIsAuthorized(categoryName, true, pageable)
-            .orElseThrow(ProjectEntityNotFoundException::new);
+        projectRepository.findByCategoryAndProjectIsAuthorized(categoryName, true, pageable);
+
     projects.forEach(p -> projectIds.add(p.getProjectId()));
+
+    Map<String, Boolean> likedProjects =
+        (Map<String, Boolean>)
+            circuitBreaker.run(
+                () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+                throwable -> new MemberServiceClientOutOfServiceException());
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtoList =
@@ -63,16 +69,18 @@ public class ProjectForSupporterService {
           lotdealRepository
               .findByProjectAndLotdealing(p, LocalDateTime.now())
               .map(
-                  l ->
+                  lotdeal ->
                       ProjectByCategoryResponseDto.fromProjectEntity(
                           p,
+                          likedProjects.get(Long.toString(p.getProjectId())),
                           fundingAchievementResultOfProjectResponseDtoList.get(
                               Long.toString(p.getProjectId())),
-                          l.getLotdealDueTime()))
+                          lotdeal.getLotdealDueTime()))
               .orElseGet(
                   () ->
                       ProjectByCategoryResponseDto.fromProjectEntity(
                           p,
+                          likedProjects.get(Long.toString(p.getProjectId())),
                           fundingAchievementResultOfProjectResponseDtoList.get(
                               Long.toString(p.getProjectId())),
                           null));
@@ -92,17 +100,21 @@ public class ProjectForSupporterService {
 
     List<ProjectImageDto> projectImageDtoList =
         projectImageRepository.findByProject(project).stream()
-            .flatMap(Collection::stream)
             .map(projectImage -> ProjectImageDto.fromProjectImageEntity(projectImage))
             .collect(Collectors.toList());
 
     List<ProductDto> productDtoList =
         productRepository.findByProject(project).stream()
-            .flatMap(Collection::stream)
             .map(product -> ProductDto.fromProductEntity(product))
             .collect(Collectors.toList());
 
     Long numberOfSupporter = supportSignatureRepository.countByProject(project);
+
+    Long likeCount =
+            (Long)
+                    circuitBreaker.run(
+                            () -> memberServiceClient.getLikeCount(projectId).getData().get(Long.toString(projectId)),
+                            throwable -> new MemberServiceClientOutOfServiceException());
 
     FundingAchievementResultOfProjectDetailResponseDto
         fundingAchievementResultOfProjectDetailResponseDto =
@@ -115,20 +127,22 @@ public class ProjectForSupporterService {
         lotdealRepository
             .findByProjectAndLotdealing(project, LocalDateTime.now())
             .map(
-                l ->
+                lotdeal ->
                     ProjectDetailResponseDto.fromProjectEntity(
                         project,
                         projectImageDtoList,
                         productDtoList,
+                        likeCount,
                         fundingAchievementResultOfProjectDetailResponseDto,
                         numberOfSupporter,
-                        l.getLotdealDueTime()))
+                        lotdeal.getLotdealDueTime()))
             .orElseGet(
                 () ->
                     ProjectDetailResponseDto.fromProjectEntity(
                         project,
                         projectImageDtoList,
                         productDtoList,
+                        likeCount,
                         fundingAchievementResultOfProjectDetailResponseDto,
                         numberOfSupporter,
                         null));

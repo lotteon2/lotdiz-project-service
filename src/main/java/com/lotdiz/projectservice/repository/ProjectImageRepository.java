@@ -7,5 +7,5 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long> {
-  Optional<List<ProjectImage>> findByProject(Project project);
+  List<ProjectImage> findByProject(Project project);
 }

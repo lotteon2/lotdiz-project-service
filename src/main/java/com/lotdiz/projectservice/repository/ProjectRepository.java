@@ -13,7 +13,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
   @Query(
       "SELECT p FROM Project p JOIN p.category c WHERE c.categoryName =:categoryName AND p.projectIsAuthorized  =:projectIsAuthorized")
-  Optional<Page<Project>> findByCategoryAndProjectIsAuthorized(
+  Page<Project> findByCategoryAndProjectIsAuthorized(
       @Param(value = "categoryName") String categoryName,
       @Param(value = "projectIsAuthorized") Boolean projectIsAuthorized,
       Pageable pageable);

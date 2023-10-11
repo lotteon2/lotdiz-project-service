@@ -27,6 +27,7 @@ public class ProjectByCategoryResponseDto {
 
   public static ProjectByCategoryResponseDto fromProjectEntity(
       Project project,
+      Boolean islike,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       LocalDateTime lotdealDueTime) {
 
@@ -42,7 +43,7 @@ public class ProjectByCategoryResponseDto {
             fundingAchievementResultOfProjectResponseDto.getAccumulatedFundingAmount())
         .lotdealDueTime(lotdealDueTime)
         .projectStatus(project.getProjectStatus().getMessage())
-        .isLike(false) // todo
+        .isLike(islike) // todo
         .build();
   }
 }

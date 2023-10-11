@@ -11,10 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,13 +19,14 @@ public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
 
-  @GetMapping("/projects")
+  @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
       getProjectsByCategory(
-          @RequestParam String category, @PageableDefault(page = 0, size = 20) Pageable pageable) {
+          @RequestHeader Long memberId,
+          @PathVariable String categoryName,  @PageableDefault(page = 0, sort = {"createdAt"}, size = 20) Pageable pageable) {
 
     List<ProjectByCategoryResponseDto> projectByCategoryResponseDtoList =
-        projectForSupporterService.getProjectsByCategory(category, pageable);
+        projectForSupporterService.getProjectsByCategory(categoryName, pageable, memberId);
 
     return ResponseEntity.ok()
         .body(
