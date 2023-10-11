@@ -6,12 +6,9 @@ import java.util.List;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ProjectMapper {
-
-  ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
 
   @Named("PIFATARD")
   ProjectInformationForAchievedTargetAmountRequestDto
