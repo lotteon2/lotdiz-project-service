@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.controller.restcontroller;
 
+import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationDto;
 import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
@@ -61,5 +62,11 @@ public class ProjectRestController {
                 .detail("프로젝트 상세 페이지 조회 성공")
                 .data(Map.of("projectDetail", projectDetailResponseDto))
                 .build());
+  }
+
+  @PostMapping("/project/makers/projects")
+  public ResponseEntity<SuccessResponse<String>> registerProject(
+      @RequestBody ProjectRegisterInformationDto projectRegisterInformationDto) {
+    return ResponseEntity.ok().body(SuccessResponse.<String>builder().build());
   }
 }
