@@ -11,6 +11,7 @@ import com.lotdiz.projectservice.entity.SupportSignature;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
+import com.lotdiz.projectservice.exception.SupportSignatureEntityNotFoundException;
 import com.lotdiz.projectservice.repository.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -199,9 +200,27 @@ public class ProjectForSupporterService {
 
     for (SupportSignature s : supportSignatureList) {
       supportSignatureResponseDtoList.add(
-          SupportSignatureResponseDto.toDto(s, memberInfoResponseDtos.get(Long.toString(s.getMemberId()))));
+          SupportSignatureResponseDto.toDto(
+              s, memberInfoResponseDtos.get(Long.toString(s.getMemberId()))));
     }
 
     return supportSignatureResponseDtoList;
+  }
+
+  @Transactional
+  public void modifySupportSignature(
+      Long memberId, Long projectId, SupportSignatureRequestDto supportSignatureContentDto) {
+
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    SupportSignature supportSignature =
+        supportSignatureRepository
+            .findByProjectAndMemberId(project, memberId)
+            .orElseThrow(SupportSignatureEntityNotFoundException::new);
+    supportSignature.setSupportSignatureContent(
+        supportSignatureContentDto.getSupportSignatureContents());
+
+    supportSignatureRepository.save(supportSignature);
   }
 }

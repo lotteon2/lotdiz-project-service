@@ -109,6 +109,24 @@ public class ProjectRestController {
                 .build());
   }
 
+  @PutMapping("/projects/{projectId}/support-signature")
+  public ResponseEntity<SuccessResponse> modifySupportSignature(
+          @RequestHeader Long memberId,
+          @PathVariable Long projectId,
+          @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
+
+    projectForSupporterService.modifySupportSignature(
+            memberId, projectId, supportSignatureContents);
+
+    return ResponseEntity.ok()
+            .body(
+                    SuccessResponse.builder()
+                            .code(String.valueOf(HttpStatus.OK.value()))
+                            .message(HttpStatus.OK.name())
+                            .detail("지지서명 수정 성공")
+                            .build());
+  }
+
   @PostMapping("/project/makers/projects")
   public ResponseEntity<SuccessResponse<String>> registerProject(
       @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationRequestDto) {
