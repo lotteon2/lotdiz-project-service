@@ -38,3 +38,4 @@ out/
 
 ### CUSTOM ###
 /src/main/resources/data.sql
+/src/main/resources/import.sql

@@ -44,7 +44,7 @@ class ProjectTest {
 
     Maker maker =
         Maker.builder()
-            .memberId(1L)
+            .memberId(5L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01044445555")
@@ -79,7 +79,7 @@ class ProjectTest {
 
     Maker maker =
         Maker.builder()
-            .memberId(1L)
+            .memberId(5L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01044445555")
@@ -114,7 +114,7 @@ class ProjectTest {
 
     Maker makerEntity =
         Maker.builder()
-            .memberId(1L)
+            .memberId(5L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01033334444")
@@ -141,7 +141,7 @@ class ProjectTest {
 
     Maker maker =
         Maker.builder()
-            .memberId(1L)
+            .memberId(5L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01044445555")
@@ -189,7 +189,7 @@ class ProjectTest {
 
     Maker maker =
         Maker.builder()
-            .memberId(1L)
+            .memberId(4L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01044445555")
@@ -232,7 +232,7 @@ class ProjectTest {
 
     Maker maker =
         Maker.builder()
-            .memberId(1L)
+            .memberId(5L)
             .makerName("최소영")
             .makerEmail("cso1@naver.com")
             .makerPhoneNumber("01044445555")
@@ -254,7 +254,7 @@ class ProjectTest {
 
     SupportSignature supportSignatureEntity =
         SupportSignature.builder()
-            .memberId(1L)
+            .memberId(5L)
             .project(project)
             .supportSignatureContent("정말 기대되는 펀딩입니다.!!!!")
             .build();
