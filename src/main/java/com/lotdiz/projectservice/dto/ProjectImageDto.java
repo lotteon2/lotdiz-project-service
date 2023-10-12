@@ -18,8 +18,4 @@ public class ProjectImageDto {
   private Long projectImageId;
   private String projectImageUrl;
   private Boolean projectImageIsThumbnail;
-
-  public static ProjectImageDto fromProjectImageEntity(ProjectImage projectImage) {
-    return ProjectImageMapper.INSTANCE.projectImageEntityToProjectImageDto(projectImage);
-  }
 }

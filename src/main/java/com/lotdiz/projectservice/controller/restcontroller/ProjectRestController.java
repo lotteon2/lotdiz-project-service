@@ -2,6 +2,7 @@ package com.lotdiz.projectservice.controller.restcontroller;
 
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
+import com.lotdiz.projectservice.dto.response.LotdealProjectResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.dto.response.SupportSignatureResponseDto;
@@ -111,20 +112,36 @@ public class ProjectRestController {
 
   @PutMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> modifySupportSignature(
-          @RequestHeader Long memberId,
-          @PathVariable Long projectId,
-          @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
+      @RequestHeader Long memberId,
+      @PathVariable Long projectId,
+      @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
     projectForSupporterService.modifySupportSignature(
-            memberId, projectId, supportSignatureContents);
+        memberId, projectId, supportSignatureContents);
 
     return ResponseEntity.ok()
-            .body(
-                    SuccessResponse.builder()
-                            .code(String.valueOf(HttpStatus.OK.value()))
-                            .message(HttpStatus.OK.name())
-                            .detail("지지서명 수정 성공")
-                            .build());
+        .body(
+            SuccessResponse.builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("지지서명 수정 성공")
+                .build());
+  }
+
+  @GetMapping("/projects/lotdeal")
+  public ResponseEntity<SuccessResponse<Map<String, List<LotdealProjectResponseDto>>>> getLotdeal(
+      @RequestHeader Long memberId, Pageable pageable) {
+
+    List<LotdealProjectResponseDto> lotdealProjectResponseDtoList = projectForSupporterService.getLotdeal(pageable, memberId);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, List<LotdealProjectResponseDto>>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("롯딜 목록 조회 성공")
+                    .data(Map.of("lotdealProjects", lotdealProjectResponseDtoList))
+                .build());
   }
 
   @PostMapping("/project/makers/projects")

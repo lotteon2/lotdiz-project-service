@@ -1,6 +1,5 @@
 package com.lotdiz.projectservice.dto.response;
 
-import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Builder
-public class ProjectByCategoryResponseDto {
+public class LotdealProjectResponseDto {
 
   private Long projectId;
   private String projectName;
@@ -26,18 +25,13 @@ public class ProjectByCategoryResponseDto {
   private String projectStatus;
   private Boolean isLike;
 
-  public static ProjectByCategoryResponseDto toDto(
+  public static LotdealProjectResponseDto toDto (
       Project project,
       Boolean islike,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
-      Lotdeal lotdeal) {
+      LocalDateTime lotdealDueTime) {
 
-    LocalDateTime lotdealDueTime = null;
-    if (lotdeal != null) {
-      lotdealDueTime = lotdeal.getLotdealDueTime();
-    }
-
-    return ProjectByCategoryResponseDto.builder()
+    return LotdealProjectResponseDto.builder()
         .projectId(project.getProjectId())
         .projectName(project.getProjectName())
         .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))
