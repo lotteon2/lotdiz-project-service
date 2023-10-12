@@ -16,7 +16,7 @@ public interface LotdealRepository extends JpaRepository<Lotdeal, Long> {
 
   @Query(
       "SELECT l FROM Lotdeal l WHERE l.project.projectId = :#{#project.projectId} AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
-  Optional<Lotdeal> findByProjectAndLotdealing(
+  Lotdeal findByProjectAndLotdealing(
       @Param("project") Project project, @Param("now") LocalDateTime now);
 
   @Query("SELECT l FROM Lotdeal l JOIN l.project p WHERE p.projectIsAuthorized = :projectIsAuthorized AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")

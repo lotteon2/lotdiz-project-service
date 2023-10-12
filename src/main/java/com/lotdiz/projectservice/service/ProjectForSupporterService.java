@@ -53,39 +53,21 @@ public class ProjectForSupporterService {
 
     projects.forEach(p -> projectIds.add(p.getProjectId()));
 
-    Map<String, Boolean> likedProjects =
-        (Map<String, Boolean>)
-            circuitBreaker.run(
-                () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
-                throwable -> new MemberServiceClientOutOfServiceException());
+    Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtoList =
-            (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
-                circuitBreaker.run(
-                    () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
-                    throwable -> new FundingServiceClientOutOfServiceException());
+            getFundingProjectClient(circuitBreaker, projectIds);
 
     for (Project p : projects) {
+      Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(p, LocalDateTime.now());
+
       ProjectByCategoryResponseDto projectByCategoryResponseDto =
-          lotdealRepository
-              .findByProjectAndLotdealing(p, LocalDateTime.now())
-              .map(
-                  lotdeal ->
-                      ProjectByCategoryResponseDto.fromProjectEntity(
-                          p,
-                          likedProjects.get(Long.toString(p.getProjectId())),
-                          fundingAchievementResultOfProjectResponseDtoList.get(
-                              Long.toString(p.getProjectId())),
-                          lotdeal.getLotdealDueTime()))
-              .orElseGet(
-                  () ->
-                      ProjectByCategoryResponseDto.fromProjectEntity(
-                          p,
-                          likedProjects.get(Long.toString(p.getProjectId())),
-                          fundingAchievementResultOfProjectResponseDtoList.get(
-                              Long.toString(p.getProjectId())),
-                          null));
+          ProjectByCategoryResponseDto.toDto(
+              p,
+              likedProjects.get(Long.toString(p.getProjectId())),
+              fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
+              lotdeal);
 
       projectByCategoryResponseDtoList.add(projectByCategoryResponseDto);
     }
@@ -112,46 +94,23 @@ public class ProjectForSupporterService {
 
     Long numberOfSupporter = supportSignatureRepository.countByProject(project);
 
-    Long likeCount =
-        (Long)
-            circuitBreaker.run(
-                () ->
-                    memberServiceClient
-                        .getLikeCount(projectId)
-                        .getData()
-                        .get(Long.toString(projectId)),
-                throwable -> new MemberServiceClientOutOfServiceException());
+    Long likeCount = getLikeCountClient(circuitBreaker, projectId);
 
     FundingAchievementResultOfProjectDetailResponseDto
         fundingAchievementResultOfProjectDetailResponseDto =
-            (FundingAchievementResultOfProjectDetailResponseDto)
-                circuitBreaker.run(
-                    () -> fundingServiceClient.getFundingOfProjectDetail(projectId).getData(),
-                    throwable -> new FundingServiceClientOutOfServiceException());
+            getFundingOfProjectDetailClient(circuitBreaker, projectId);
+
+    Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(project, LocalDateTime.now());
 
     ProjectDetailResponseDto projectDetailResponseDto =
-        lotdealRepository
-            .findByProjectAndLotdealing(project, LocalDateTime.now())
-            .map(
-                lotdeal ->
-                    ProjectDetailResponseDto.fromProjectEntity(
-                        project,
-                        projectImageDtoList,
-                        productDtoList,
-                        likeCount,
-                        fundingAchievementResultOfProjectDetailResponseDto,
-                        numberOfSupporter,
-                        lotdeal.getLotdealDueTime()))
-            .orElseGet(
-                () ->
-                    ProjectDetailResponseDto.fromProjectEntity(
-                        project,
-                        projectImageDtoList,
-                        productDtoList,
-                        likeCount,
-                        fundingAchievementResultOfProjectDetailResponseDto,
-                        numberOfSupporter,
-                        null));
+        ProjectDetailResponseDto.toDto(
+            project,
+            projectImageDtoList,
+            productDtoList,
+            likeCount,
+            fundingAchievementResultOfProjectDetailResponseDto,
+            numberOfSupporter,
+            lotdeal);
 
     return projectDetailResponseDto;
   }
@@ -194,10 +153,7 @@ public class ProjectForSupporterService {
             .collect(Collectors.toList());
 
     Map<String, MemberInfoResponseDto> memberInfoResponseDtos =
-        (Map<String, MemberInfoResponseDto>)
-            circuitBreaker.run(
-                () -> memberServiceClient.getMemberInfo(memberIds).getData(),
-                throwable -> new MemberServiceClientOutOfServiceException());
+        getMemberInfoClient(circuitBreaker, memberIds);
 
     for (SupportSignature s : supportSignatureList) {
       supportSignatureResponseDtoList.add(
@@ -238,18 +194,11 @@ public class ProjectForSupporterService {
 
     lotdealProjects.forEach(l -> projectIds.add(l.getProject().getProjectId()));
 
-    Map<String, Boolean> likedProjects =
-        (Map<String, Boolean>)
-            circuitBreaker.run(
-                () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
-                throwable -> new MemberServiceClientOutOfServiceException());
+    Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtos =
-            (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
-                circuitBreaker.run(
-                    () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
-                    throwable -> new FundingServiceClientOutOfServiceException());
+            getFundingProjectClient(circuitBreaker, projectIds);
 
     for (Lotdeal lotdeal : lotdealProjects) {
       LotdealProjectResponseDto lotdealProjectResponseDto =
@@ -264,5 +213,49 @@ public class ProjectForSupporterService {
     }
 
     return lotdealProjectResponseDtoList;
+  }
+
+  public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
+      CircuitBreaker circuitBreaker, List<Long> projectIds) {
+
+    return (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
+        circuitBreaker.run(
+            () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
+            throwable -> new FundingServiceClientOutOfServiceException());
+  }
+
+  public FundingAchievementResultOfProjectDetailResponseDto getFundingOfProjectDetailClient(
+      CircuitBreaker circuitBreaker, Long projectId) {
+
+    return (FundingAchievementResultOfProjectDetailResponseDto)
+        circuitBreaker.run(
+            () -> fundingServiceClient.getFundingOfProjectDetail(projectId).getData(),
+            throwable -> new FundingServiceClientOutOfServiceException());
+  }
+
+  public Map<String, Boolean> getIsLikeClient(
+      CircuitBreaker circuitBreaker, Long memberId, List<Long> projectIds) {
+
+    return (Map<String, Boolean>)
+        circuitBreaker.run(
+            () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+            throwable -> new MemberServiceClientOutOfServiceException());
+  }
+
+  public Long getLikeCountClient(CircuitBreaker circuitBreaker, Long projectId) {
+    return (Long)
+        circuitBreaker.run(
+            () ->
+                memberServiceClient.getLikeCount(projectId).getData().get(Long.toString(projectId)),
+            throwable -> new MemberServiceClientOutOfServiceException());
+  }
+
+  public Map<String, MemberInfoResponseDto> getMemberInfoClient(
+      CircuitBreaker circuitBreaker, List<Long> memberIds) {
+
+    return (Map<String, MemberInfoResponseDto>)
+        circuitBreaker.run(
+            () -> memberServiceClient.getMemberInfo(memberIds).getData(),
+            throwable -> new MemberServiceClientOutOfServiceException());
   }
 }
