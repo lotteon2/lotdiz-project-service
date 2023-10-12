@@ -6,6 +6,7 @@ import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
+import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.entity.SupportSignature;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
@@ -222,5 +223,46 @@ public class ProjectForSupporterService {
         supportSignatureContentDto.getSupportSignatureContents());
 
     supportSignatureRepository.save(supportSignature);
+  }
+
+  @Transactional(readOnly = true)
+  public List<LotdealProjectResponseDto> getLotdeal(Pageable pageable, Long memberId) {
+
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+
+    List<LotdealProjectResponseDto> lotdealProjectResponseDtoList = new ArrayList<>();
+
+    List<Long> projectIds = new ArrayList<>();
+    Page<Lotdeal> lotdealProjects =
+        lotdealRepository.findAllLotdealing(LocalDateTime.now(), true, pageable);
+
+    lotdealProjects.forEach(l -> projectIds.add(l.getProject().getProjectId()));
+
+    Map<String, Boolean> likedProjects =
+        (Map<String, Boolean>)
+            circuitBreaker.run(
+                () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+                throwable -> new MemberServiceClientOutOfServiceException());
+
+    HashMap<String, FundingAchievementResultOfProjectResponseDto>
+        fundingAchievementResultOfProjectResponseDtos =
+            (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
+                circuitBreaker.run(
+                    () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
+                    throwable -> new FundingServiceClientOutOfServiceException());
+
+    for (Lotdeal lotdeal : lotdealProjects) {
+      LotdealProjectResponseDto lotdealProjectResponseDto =
+          LotdealProjectResponseDto.toDto(
+              lotdeal.getProject(),
+              likedProjects.get(Long.toString(lotdeal.getProject().getProjectId())),
+              fundingAchievementResultOfProjectResponseDtos.get(
+                  Long.toString(lotdeal.getProject().getProjectId())),
+              lotdeal.getLotdealDueTime());
+
+      lotdealProjectResponseDtoList.add(lotdealProjectResponseDto);
+    }
+
+    return lotdealProjectResponseDtoList;
   }
 }
