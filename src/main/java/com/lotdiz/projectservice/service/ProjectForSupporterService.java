@@ -13,6 +13,8 @@ import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceExcep
 import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.exception.SupportSignatureEntityNotFoundException;
+import com.lotdiz.projectservice.mapper.ProductMapper;
+import com.lotdiz.projectservice.mapper.ProjectImageMapper;
 import com.lotdiz.projectservice.repository.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,6 +39,8 @@ public class ProjectForSupporterService {
   private final SupportSignatureRepository supportSignatureRepository;
   private final FundingServiceClient fundingServiceClient;
   private final MemberServiceClient memberServiceClient;
+  private final ProductMapper productMapper;
+  private final ProjectImageMapper projectImageMapper;
   private final CircuitBreakerFactory circuitBreakerFactory;
 
   @Transactional(readOnly = true)
@@ -83,14 +87,11 @@ public class ProjectForSupporterService {
         projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
 
     List<ProjectImageDto> projectImageDtoList =
-        projectImageRepository.findByProject(project).stream()
-            .map(projectImage -> ProjectImageDto.fromProjectImageEntity(projectImage))
-            .collect(Collectors.toList());
+        projectImageMapper.projectImageEntityToProjectImageDtoList(
+            projectImageRepository.findByProject(project));
 
     List<ProductDto> productDtoList =
-        productRepository.findByProject(project).stream()
-            .map(product -> ProductDto.fromProductEntity(product))
-            .collect(Collectors.toList());
+        productMapper.productEntityToProductDtoList(productRepository.findByProject(project));
 
     Long numberOfSupporter = supportSignatureRepository.countByProject(project);
 
