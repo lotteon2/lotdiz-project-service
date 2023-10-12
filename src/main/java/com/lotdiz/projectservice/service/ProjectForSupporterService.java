@@ -13,6 +13,7 @@ import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceExcep
 import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.exception.SupportSignatureEntityNotFoundException;
+import com.lotdiz.projectservice.mapper.BannerMapper;
 import com.lotdiz.projectservice.mapper.ProductMapper;
 import com.lotdiz.projectservice.mapper.ProjectImageMapper;
 import com.lotdiz.projectservice.repository.*;
@@ -37,8 +38,10 @@ public class ProjectForSupporterService {
   private final ProjectImageRepository projectImageRepository;
   private final ProductRepository productRepository;
   private final SupportSignatureRepository supportSignatureRepository;
+  private final BannerRepository bannerRepository;
   private final FundingServiceClient fundingServiceClient;
   private final MemberServiceClient memberServiceClient;
+  private final BannerMapper bannerMapper;
   private final ProductMapper productMapper;
   private final ProjectImageMapper projectImageMapper;
   private final CircuitBreakerFactory circuitBreakerFactory;
@@ -216,6 +219,12 @@ public class ProjectForSupporterService {
     return lotdealProjectResponseDtoList;
   }
 
+  @Transactional(readOnly = true)
+  public List<BannerResponseDto> getBanners() {
+    return bannerMapper.toBannerDtoList(bannerRepository.findAll());
+  }
+
+  // feign client
   public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
       CircuitBreaker circuitBreaker, List<Long> projectIds) {
 

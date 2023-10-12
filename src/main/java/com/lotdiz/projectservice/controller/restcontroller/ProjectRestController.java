@@ -2,10 +2,7 @@ package com.lotdiz.projectservice.controller.restcontroller;
 
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
-import com.lotdiz.projectservice.dto.response.LotdealProjectResponseDto;
-import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
-import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
-import com.lotdiz.projectservice.dto.response.SupportSignatureResponseDto;
+import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
@@ -132,7 +129,8 @@ public class ProjectRestController {
   public ResponseEntity<SuccessResponse<Map<String, List<LotdealProjectResponseDto>>>> getLotdeal(
       @RequestHeader Long memberId, Pageable pageable) {
 
-    List<LotdealProjectResponseDto> lotdealProjectResponseDtoList = projectForSupporterService.getLotdeal(pageable, memberId);
+    List<LotdealProjectResponseDto> lotdealProjectResponseDtoList =
+        projectForSupporterService.getLotdeal(pageable, memberId);
 
     return ResponseEntity.ok()
         .body(
@@ -140,7 +138,7 @@ public class ProjectRestController {
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .message(HttpStatus.OK.name())
                 .detail("롯딜 목록 조회 성공")
-                    .data(Map.of("lotdealProjects", lotdealProjectResponseDtoList))
+                .data(Map.of("lotdealProjects", lotdealProjectResponseDtoList))
                 .build());
   }
 
@@ -148,5 +146,20 @@ public class ProjectRestController {
   public ResponseEntity<SuccessResponse<String>> registerProject(
       @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationRequestDto) {
     return ResponseEntity.ok().body(SuccessResponse.<String>builder().build());
+  }
+
+  @GetMapping("/projects/banner")
+  public ResponseEntity<SuccessResponse<Map<String, List<BannerResponseDto>>>> getBanners() {
+
+    List<BannerResponseDto> bannerResponseDtoList = projectForSupporterService.getBanners();
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, List<BannerResponseDto>>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("배너 조회 성공")
+                .data(Map.of("banners", bannerResponseDtoList))
+                .build());
   }
 }
