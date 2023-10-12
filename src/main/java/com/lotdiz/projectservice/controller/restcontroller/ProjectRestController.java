@@ -1,7 +1,7 @@
 package com.lotdiz.projectservice.controller.restcontroller;
 
+import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
-import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationDto;
 import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.dto.response.SupportSignatureResponseDto;
@@ -107,10 +107,11 @@ public class ProjectRestController {
                 .detail("지지서명 조회 성공")
                 .data(Map.of("projectDetail", supportSignatureResponseDtoList))
                 .build());
-    
+  }
+
   @PostMapping("/project/makers/projects")
   public ResponseEntity<SuccessResponse<String>> registerProject(
-      @RequestBody ProjectRegisterInformationDto projectRegisterInformationDto) {
+      @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationRequestDto) {
     return ResponseEntity.ok().body(SuccessResponse.<String>builder().build());
   }
 }
