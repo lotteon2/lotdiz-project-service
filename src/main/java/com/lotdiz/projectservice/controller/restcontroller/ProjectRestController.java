@@ -162,4 +162,30 @@ public class ProjectRestController {
                 .data(Map.of("banners", bannerResponseDtoList))
                 .build());
   }
+
+  @GetMapping("/projects/special-exhibition")
+  public ResponseEntity<SuccessResponse<Map<String, List<SpecialExhibitionResponseDto>>>>
+      getSpecialExhibition(
+          @RequestHeader Long memberId,
+          @RequestParam String tag,
+          @PageableDefault(
+                  page = 0,
+                  size = 20,
+                  sort = {"createdAt"},
+                  direction = Sort.Direction.DESC)
+              Pageable pageable
+          ) {
+
+    List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList =
+        projectForSupporterService.getSpecialExhibition(pageable, tag, memberId);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, List<SpecialExhibitionResponseDto>>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("기획전 조회 성공")
+                .data(Map.of("special-exhibition", specialExhibitionResponseDtoList))
+                .build());
+  }
 }
