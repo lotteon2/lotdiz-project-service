@@ -26,7 +26,7 @@ public class ProjectRestController {
   @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
       getProjectsByCategory(
-          @RequestHeader Long memberId,
+          @RequestHeader(required = false) Long memberId,
           @PathVariable String categoryName,
           @PageableDefault(
                   page = 0,
@@ -67,7 +67,7 @@ public class ProjectRestController {
 
   @PostMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> createSupportSignature(
-      @RequestHeader Long memberId,
+      @RequestHeader(required = false) Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
@@ -109,7 +109,7 @@ public class ProjectRestController {
 
   @PutMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> modifySupportSignature(
-      @RequestHeader Long memberId,
+      @RequestHeader(required = false) Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
@@ -127,7 +127,7 @@ public class ProjectRestController {
 
   @GetMapping("/projects/lotdeal")
   public ResponseEntity<SuccessResponse<Map<String, List<LotdealProjectResponseDto>>>> getLotdeal(
-      @RequestHeader Long memberId, Pageable pageable) {
+      @RequestHeader(required = false) Long memberId, Pageable pageable) {
 
     List<LotdealProjectResponseDto> lotdealProjectResponseDtoList =
         projectForSupporterService.getLotdeal(pageable, memberId);
