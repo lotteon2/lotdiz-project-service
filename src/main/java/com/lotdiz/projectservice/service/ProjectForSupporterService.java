@@ -234,6 +234,41 @@ public class ProjectForSupporterService {
             throwable -> new FundingServiceClientOutOfServiceException());
   }
 
+  @Transactional(readOnly = true)
+  public List<SpecialExhibitionResponseDto> getSpecialExhibition(
+      Pageable pageable, String tag, Long memberId) {
+
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+
+    List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList = new ArrayList<>();
+    List<Long> projectIds = new ArrayList<>();
+
+    Page<Project> projects =
+        projectRepository.findByProjectTagAndProjectIsAuthorized(tag, true, pageable);
+
+    projects.forEach(p -> projectIds.add(p.getProjectId()));
+
+    Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
+
+    HashMap<String, FundingAchievementResultOfProjectResponseDto>
+        fundingAchievementResultOfProjectResponseDtoList =
+            getFundingProjectClient(circuitBreaker, projectIds);
+
+    for (Project p : projects) {
+      Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(p, LocalDateTime.now());
+
+      SpecialExhibitionResponseDto specialExhibitionResponseDto =
+          SpecialExhibitionResponseDto.toDto(
+              p,
+              likedProjects.get(Long.toString(p.getProjectId())),
+              fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
+              lotdeal);
+      specialExhibitionResponseDtoList.add(specialExhibitionResponseDto);
+    }
+
+    return specialExhibitionResponseDtoList;
+  }
+
   public FundingAchievementResultOfProjectDetailResponseDto getFundingOfProjectDetailClient(
       CircuitBreaker circuitBreaker, Long projectId) {
 
