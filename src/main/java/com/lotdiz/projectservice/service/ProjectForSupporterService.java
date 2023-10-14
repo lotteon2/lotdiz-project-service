@@ -281,13 +281,20 @@ public class ProjectForSupporterService {
   public Map<String, Boolean> getIsLikeClient(
       CircuitBreaker circuitBreaker, Long memberId, List<Long> projectIds) {
 
-    return (Map<String, Boolean>)
-        circuitBreaker.run(
-            () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
-            throwable -> new MemberServiceClientOutOfServiceException());
+    Map<String, Boolean> isLikeMap = new HashMap<>();
+
+    if (memberId != null) {
+      isLikeMap =
+          (Map<String, Boolean>)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
+    }
+    return isLikeMap;
   }
 
   public Long getLikeCountClient(CircuitBreaker circuitBreaker, Long projectId) {
+
     return (Long)
         circuitBreaker.run(
             () ->
