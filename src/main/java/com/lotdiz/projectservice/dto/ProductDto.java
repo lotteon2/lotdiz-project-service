@@ -1,7 +1,5 @@
 package com.lotdiz.projectservice.dto;
 
-import com.lotdiz.projectservice.entity.Product;
-import com.lotdiz.projectservice.mapper.ProductMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,8 +17,4 @@ public class ProductDto {
   private Long productPrice;
   private Long productRegisteredStockQuantity;
   private Long productCurrentStockQuantity;
-
-  public static ProductDto fromProductEntity(Product product) {
-    return ProductMapper.INSTANCE.productEntityToProductDto(product);
-  }
 }

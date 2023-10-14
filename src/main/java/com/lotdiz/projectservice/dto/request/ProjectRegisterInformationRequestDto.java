@@ -17,7 +17,6 @@ public class ProjectRegisterInformationRequestDto {
   private final String projectThumbnailImageUrl;
   private final List<String> projectImages;
   private final Long categoryId;
-
   private final boolean isLotdeal;
   private MakerRegisterRequestDto maker;
   private List<ProductInfoForProjectRequestDto> products;

@@ -2,6 +2,7 @@ package com.lotdiz.projectservice.dto.response;
 
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
+import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +36,7 @@ public class ProjectDetailResponseDto {
   private String projectStatus;
   private List<ProductDto> products;
 
-  public static ProjectDetailResponseDto fromProjectEntity(
+  public static ProjectDetailResponseDto toDto(
       Project project,
       List<ProjectImageDto> projectImages,
       List<ProductDto> products,
@@ -43,7 +44,13 @@ public class ProjectDetailResponseDto {
       FundingAchievementResultOfProjectDetailResponseDto
           fundingAchievementResultOfProjectDetailResponseDto,
       Long numberOfSupporter,
-      LocalDateTime lotdealDueTime) {
+      Lotdeal lotdeal) {
+
+    LocalDateTime lotdealDueTime = null;
+
+    if (lotdeal != null) {
+      lotdealDueTime = lotdeal.getLotdealDueTime();
+    }
 
     return ProjectDetailResponseDto.builder()
         .projectId(project.getProjectId())
@@ -53,15 +60,13 @@ public class ProjectDetailResponseDto {
         .makerName(project.getMaker().getMakerName())
         .categoryName(project.getCategory().getCategoryName())
         .projectTag(project.getProjectTag())
-        .numberOfBuyers(
-            fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers())
+        .numberOfBuyers(fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers())
         .numberOfLikes(likeCount)
         .numberOfSupporter(numberOfSupporter)
         .fundingAchievementRate(
             fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate())
         .accumulatedFundingAmount(
-            fundingAchievementResultOfProjectDetailResponseDto
-                .getAccumulatedFundingAmount())
+            fundingAchievementResultOfProjectDetailResponseDto.getAccumulatedFundingAmount())
         .projectStoryImageUrl(project.getProjectStoryImageUrl())
         .projectImages(projectImages)
         .lotdealDueTime(lotdealDueTime)

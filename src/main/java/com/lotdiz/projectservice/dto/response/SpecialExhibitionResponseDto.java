@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Builder
-public class ProjectByCategoryResponseDto {
+public class SpecialExhibitionResponseDto {
 
   private Long projectId;
   private String projectName;
@@ -26,18 +26,19 @@ public class ProjectByCategoryResponseDto {
   private String projectStatus;
   private Boolean isLike;
 
-  public static ProjectByCategoryResponseDto toDto(
+  public static SpecialExhibitionResponseDto toDto(
       Project project,
       Boolean islike,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       Lotdeal lotdeal) {
 
     LocalDateTime lotdealDueTime = null;
+
     if (lotdeal != null) {
       lotdealDueTime = lotdeal.getLotdealDueTime();
     }
 
-    return ProjectByCategoryResponseDto.builder()
+    return SpecialExhibitionResponseDto.builder()
         .projectId(project.getProjectId())
         .projectName(project.getProjectName())
         .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))

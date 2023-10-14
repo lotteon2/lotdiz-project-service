@@ -28,6 +28,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
   @Query("select p from Project p " + "join fetch p.maker m " + "where p.projectDueDate < :now")
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
+  Page<Project> findByProjectTagAndProjectIsAuthorized(String projectTag, Boolean projectIsAuthorized, Pageable pageable);
+
   @Modifying
   @Query(
       "update Project p set p.projectStatus = :projectStatus where p.projectDueDate < :now and p.projectId in :projectIds")
