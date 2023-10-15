@@ -1,10 +1,18 @@
 package com.lotdiz.projectservice.service;
 
+import com.lotdiz.projectservice.dto.request.GetProjectProductInfoRequestDto;
 import com.lotdiz.projectservice.dto.request.ProductStockUpdateRequest;
-import com.lotdiz.projectservice.dto.response.ProductStockCheckResponse;
+import com.lotdiz.projectservice.dto.response.GetProductInfoDto;
+import com.lotdiz.projectservice.dto.response.GetProjectProductInfoResponseDto;
+import com.lotdiz.projectservice.dto.response.ProductStockCheckResponseDto;
+import com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto;
 import com.lotdiz.projectservice.entity.Product;
+import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.exception.ProductEntityNotFoundException;
+import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.repository.ProductRepository;
+import com.lotdiz.projectservice.repository.ProjectRepository;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,9 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class FundingClientService {
 
   private final ProductRepository productRepository;
+  private final ProjectRepository projectRepository;
 
   @Transactional(readOnly = true)
-  public List<ProductStockCheckResponse> checkStockQuantityExceed(List<Long> productIds) {
+  public List<ProductStockCheckResponseDto> checkStockQuantityExceed(List<Long> productIds) {
 
     return productRepository.findProductsByIds(productIds);
   }
@@ -35,5 +44,35 @@ public class FundingClientService {
           product.getProductCurrentStockQuantity() - p.getProductFundingQuantity());
       productRepository.save(product);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public List<ProjectAndMakerInfoDto> getProjectMakerInfo(List<Long> projectIds) {
+
+    return projectRepository.findMakerProject(projectIds);
+  }
+
+  @Transactional(readOnly = true)
+  public List<GetProjectProductInfoResponseDto> getProjectProductInfo(
+      List<GetProjectProductInfoRequestDto> getProjectProductInfoRequestDtos) {
+
+    List<GetProjectProductInfoResponseDto> getProjectProductInfoResponseDtos = new ArrayList<>();
+
+    for (GetProjectProductInfoRequestDto p : getProjectProductInfoRequestDtos) {
+      Project project =
+          projectRepository
+              .findById(p.getProjectId())
+              .orElseThrow(ProjectEntityNotFoundException::new);
+
+      List<GetProductInfoDto> product = productRepository.findByProductIds(p.getProductIds());
+
+      getProjectProductInfoResponseDtos.add(
+          GetProjectProductInfoResponseDto.builder()
+              .projectId(project.getProjectId())
+              .projectDescription(project.getProjectDescription())
+              .products(product)
+              .build());
+    }
+    return getProjectProductInfoResponseDtos;
   }
 }

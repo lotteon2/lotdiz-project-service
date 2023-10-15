@@ -4,11 +4,11 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductStockCheckResponse {
+public class ProductStockCheckResponseDto {
     private Long productId;
     private Long productCurrentStockQuantity;
 
-    public ProductStockCheckResponse(long productId, long productCurrentStockQuantity) {
+    public ProductStockCheckResponseDto(long productId, long productCurrentStockQuantity) {
         this.productId = productId;
         this.productCurrentStockQuantity = productCurrentStockQuantity;
     }
