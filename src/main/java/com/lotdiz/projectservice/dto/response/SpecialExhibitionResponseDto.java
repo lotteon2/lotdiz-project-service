@@ -28,6 +28,7 @@ public class SpecialExhibitionResponseDto {
 
   public static SpecialExhibitionResponseDto toDto(
       Project project,
+      String projectThumbnailImageUrl,
       Boolean islike,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       Lotdeal lotdeal) {
@@ -42,7 +43,7 @@ public class SpecialExhibitionResponseDto {
         .projectId(project.getProjectId())
         .projectName(project.getProjectName())
         .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))
-        .projectThumbnailImageUrl(project.getProjectStoryImageUrl())
+        .projectThumbnailImageUrl(projectThumbnailImageUrl)
         .makerName(project.getMaker().getMakerName())
         .fundingAchievementRate(
             fundingAchievementResultOfProjectResponseDto.getFundingAchievementRate())
