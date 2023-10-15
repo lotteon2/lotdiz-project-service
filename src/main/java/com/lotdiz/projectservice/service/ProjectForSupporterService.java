@@ -5,6 +5,7 @@ import com.lotdiz.projectservice.client.MemberServiceClient;
 import com.lotdiz.projectservice.dto.BestLotPlusDto;
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
+import com.lotdiz.projectservice.dto.request.FundingAchievementResultOfProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.entity.Lotdeal;
@@ -59,13 +60,24 @@ public class ProjectForSupporterService {
     List<BestLotPlusDto> bestlotdPlusList =
         projectRepository.findBestLotdPlus(LocalDateTime.now(), PageRequest.of(0, 6));
 
-    bestlotdPlusList.forEach(p -> projectIds.add(p.getProject().getProjectId()));
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =
+        new ArrayList<>();
+
+    bestlotdPlusList.forEach(
+        p -> {
+          projectIds.add(p.getProject().getProjectId());
+          fundingAchievementResultOfProjectRequestDtos.add(
+              FundingAchievementResultOfProjectRequestDto.builder()
+                  .projectId(p.getProject().getProjectId())
+                  .projectTargetAmount(p.getProject().getProjectTargetAmount())
+                  .build());
+        });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtoList =
-            getFundingProjectClient(circuitBreaker, projectIds);
+            getFundingProjectClient(circuitBreaker, fundingAchievementResultOfProjectRequestDtos);
 
     for (BestLotPlusDto lotPlus : bestlotdPlusList) {
       BestLotdPlusResponseDto bestLotdPlusResponseDto =
@@ -91,17 +103,27 @@ public class ProjectForSupporterService {
 
     List<ProjectByCategoryResponseDto> projectByCategoryResponseDtoList = new ArrayList<>();
     List<Long> projectIds = new ArrayList<>();
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =
+        new ArrayList<>();
 
     Page<Project> projects =
         projectRepository.findByCategoryAndProjectIsAuthorized(categoryName, true, pageable);
 
-    projects.forEach(p -> projectIds.add(p.getProjectId()));
+    projects.forEach(
+        p -> {
+          projectIds.add(p.getProjectId());
+          fundingAchievementResultOfProjectRequestDtos.add(
+              FundingAchievementResultOfProjectRequestDto.builder()
+                  .projectId(p.getProjectId())
+                  .projectTargetAmount(p.getProjectTargetAmount())
+                  .build());
+        });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtoList =
-            getFundingProjectClient(circuitBreaker, projectIds);
+            getFundingProjectClient(circuitBreaker, fundingAchievementResultOfProjectRequestDtos);
 
     for (Project p : projects) {
       Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(p, LocalDateTime.now());
@@ -109,6 +131,8 @@ public class ProjectForSupporterService {
       ProjectByCategoryResponseDto projectByCategoryResponseDto =
           ProjectByCategoryResponseDto.toDto(
               p,
+              projectImageRepository.findProjectImageByProjectAndAndProjectImageIsThumbnail(
+                  p, true),
               likedProjects.get(Long.toString(p.getProjectId())),
               fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
               lotdeal);
@@ -230,21 +254,34 @@ public class ProjectForSupporterService {
     List<LotdealProjectResponseDto> lotdealProjectResponseDtoList = new ArrayList<>();
 
     List<Long> projectIds = new ArrayList<>();
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos = new ArrayList<>();
     Page<Lotdeal> lotdealProjects =
         lotdealRepository.findAllLotdealing(LocalDateTime.now(), true, pageable);
 
-    lotdealProjects.forEach(l -> projectIds.add(l.getProject().getProjectId()));
+    lotdealProjects.forEach(
+            p -> {
+              projectIds.add(p.getProject().getProjectId());
+              fundingAchievementResultOfProjectRequestDtos.add(
+                      FundingAchievementResultOfProjectRequestDto.builder()
+                              .projectId(p.getProject().getProjectId())
+                              .projectTargetAmount(p.getProject().getProjectTargetAmount())
+                              .build());
+            });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
+
+
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtos =
-            getFundingProjectClient(circuitBreaker, projectIds);
+            getFundingProjectClient(circuitBreaker, fundingAchievementResultOfProjectRequestDtos);
 
     for (Lotdeal lotdeal : lotdealProjects) {
       LotdealProjectResponseDto lotdealProjectResponseDto =
           LotdealProjectResponseDto.toDto(
               lotdeal.getProject(),
+              projectImageRepository.findProjectImageByProjectAndAndProjectImageIsThumbnail(
+                  lotdeal.getProject(), true),
               likedProjects.get(Long.toString(lotdeal.getProject().getProjectId())),
               fundingAchievementResultOfProjectResponseDtos.get(
                   Long.toString(lotdeal.getProject().getProjectId())),
@@ -269,17 +306,26 @@ public class ProjectForSupporterService {
 
     List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList = new ArrayList<>();
     List<Long> projectIds = new ArrayList<>();
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos = new ArrayList<>();
 
     Page<Project> projects =
         projectRepository.findByProjectTagAndProjectIsAuthorized(tag, true, pageable);
 
-    projects.forEach(p -> projectIds.add(p.getProjectId()));
+    projects.forEach(
+            p -> {
+              projectIds.add(p.getProjectId());
+              fundingAchievementResultOfProjectRequestDtos.add(
+                      FundingAchievementResultOfProjectRequestDto.builder()
+                              .projectId(p.getProjectId())
+                              .projectTargetAmount(p.getProjectTargetAmount())
+                              .build());
+            });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtoList =
-            getFundingProjectClient(circuitBreaker, projectIds);
+            getFundingProjectClient(circuitBreaker, fundingAchievementResultOfProjectRequestDtos);
 
     for (Project p : projects) {
       Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(p, LocalDateTime.now());
@@ -287,6 +333,8 @@ public class ProjectForSupporterService {
       SpecialExhibitionResponseDto specialExhibitionResponseDto =
           SpecialExhibitionResponseDto.toDto(
               p,
+              projectImageRepository.findProjectImageByProjectAndAndProjectImageIsThumbnail(
+                  p, true),
               likedProjects.get(Long.toString(p.getProjectId())),
               fundingAchievementResultOfProjectResponseDtoList.get(Long.toString(p.getProjectId())),
               lotdeal);
@@ -298,11 +346,16 @@ public class ProjectForSupporterService {
 
   // feign client
   public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
-      CircuitBreaker circuitBreaker, List<Long> projectIds) {
+      CircuitBreaker circuitBreaker,
+      List<FundingAchievementResultOfProjectRequestDto>
+          fundingAchievementResultOfProjectRequestDtos) {
 
     return (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
         circuitBreaker.run(
-            () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
+            () ->
+                fundingServiceClient
+                    .getFundingOfProject(fundingAchievementResultOfProjectRequestDtos)
+                    .getData(),
             throwable -> new FundingServiceClientOutOfServiceException());
   }
 
@@ -322,10 +375,10 @@ public class ProjectForSupporterService {
 
     if (memberId != null) {
       isLikeMap =
-              (Map<String, Boolean>)
-                      circuitBreaker.run(
-                              () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
-                              throwable -> new MemberServiceClientOutOfServiceException());
+          (Map<String, Boolean>)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
     }
     return isLikeMap;
   }
