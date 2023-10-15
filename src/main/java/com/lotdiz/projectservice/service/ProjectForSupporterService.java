@@ -2,6 +2,7 @@ package com.lotdiz.projectservice.service;
 
 import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.client.MemberServiceClient;
+import com.lotdiz.projectservice.dto.BestLotPlusDto;
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
@@ -25,6 +26,7 @@ import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,41 @@ public class ProjectForSupporterService {
   private final ProductMapper productMapper;
   private final ProjectImageMapper projectImageMapper;
   private final CircuitBreakerFactory circuitBreakerFactory;
+
+  @Transactional(readOnly = true)
+  public List<BestLotdPlusResponseDto> getLotdPlusProject(Long memberId) {
+
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+
+    List<BestLotdPlusResponseDto> bestLotdPlusResponseDtos = new ArrayList<>();
+    List<Long> projectIds = new ArrayList<>();
+
+    List<BestLotPlusDto> bestlotdPlusList =
+        projectRepository.findBestLotdPlus(LocalDateTime.now(), PageRequest.of(0, 6));
+
+    bestlotdPlusList.forEach(p -> projectIds.add(p.getProject().getProjectId()));
+
+    Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
+
+    HashMap<String, FundingAchievementResultOfProjectResponseDto>
+        fundingAchievementResultOfProjectResponseDtoList =
+            getFundingProjectClient(circuitBreaker, projectIds);
+
+    for (BestLotPlusDto lotPlus : bestlotdPlusList) {
+      BestLotdPlusResponseDto bestLotdPlusResponseDto =
+          BestLotdPlusResponseDto.toDto(
+              lotPlus.getProject(),
+              projectImageRepository.findProjectImageByProjectAndAndProjectImageIsThumbnail(
+                  lotPlus.getProject(), true),
+              likedProjects.get(Long.toString(lotPlus.getProject().getProjectId())),
+              fundingAchievementResultOfProjectResponseDtoList.get(
+                  Long.toString(lotPlus.getProject().getProjectId())));
+
+      bestLotdPlusResponseDtos.add(bestLotdPlusResponseDto);
+    }
+
+    return bestLotdPlusResponseDtos;
+  }
 
   @Transactional(readOnly = true)
   public List<ProjectByCategoryResponseDto> getProjectsByCategory(
@@ -224,16 +261,6 @@ public class ProjectForSupporterService {
     return bannerMapper.toBannerDtoList(bannerRepository.findAll());
   }
 
-  // feign client
-  public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
-      CircuitBreaker circuitBreaker, List<Long> projectIds) {
-
-    return (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
-        circuitBreaker.run(
-            () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
-            throwable -> new FundingServiceClientOutOfServiceException());
-  }
-
   @Transactional(readOnly = true)
   public List<SpecialExhibitionResponseDto> getSpecialExhibition(
       Pageable pageable, String tag, Long memberId) {
@@ -269,6 +296,16 @@ public class ProjectForSupporterService {
     return specialExhibitionResponseDtoList;
   }
 
+  // feign client
+  public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
+      CircuitBreaker circuitBreaker, List<Long> projectIds) {
+
+    return (HashMap<String, FundingAchievementResultOfProjectResponseDto>)
+        circuitBreaker.run(
+            () -> fundingServiceClient.getFundingOfProject(projectIds).getData(),
+            throwable -> new FundingServiceClientOutOfServiceException());
+  }
+
   public FundingAchievementResultOfProjectDetailResponseDto getFundingOfProjectDetailClient(
       CircuitBreaker circuitBreaker, Long projectId) {
 
@@ -281,10 +318,16 @@ public class ProjectForSupporterService {
   public Map<String, Boolean> getIsLikeClient(
       CircuitBreaker circuitBreaker, Long memberId, List<Long> projectIds) {
 
-    return (Map<String, Boolean>)
-        circuitBreaker.run(
-            () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
-            throwable -> new MemberServiceClientOutOfServiceException());
+    Map<String, Boolean> isLikeMap = new HashMap<>();
+
+    if (memberId != null) {
+      isLikeMap =
+              (Map<String, Boolean>)
+                      circuitBreaker.run(
+                              () -> memberServiceClient.getIsLike(memberId, projectIds).getData(),
+                              throwable -> new MemberServiceClientOutOfServiceException());
+    }
+    return isLikeMap;
   }
 
   public Long getLikeCountClient(CircuitBreaker circuitBreaker, Long projectId) {

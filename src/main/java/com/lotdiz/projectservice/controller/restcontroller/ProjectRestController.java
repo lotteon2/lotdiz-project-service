@@ -23,10 +23,27 @@ public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
 
+  @GetMapping("/projects")
+  public ResponseEntity<SuccessResponse<Map<String, List<BestLotdPlusResponseDto>>>> getLotdplusProject(
+      @RequestHeader(required = false) Long memberId) {
+
+    List<BestLotdPlusResponseDto> lotdPlusResponseDtoList =
+        projectForSupporterService.getLotdPlusProject(memberId);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, List<BestLotdPlusResponseDto>>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("메인 페이지 롯드플러스 조회 성공")
+                .data(Map.of("lotdPlusBest", lotdPlusResponseDtoList))
+                .build());
+  }
+
   @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
       getProjectsByCategory(
-          @RequestHeader Long memberId,
+          @RequestHeader(required = false) Long memberId,
           @PathVariable String categoryName,
           @PageableDefault(
                   page = 0,
@@ -67,7 +84,7 @@ public class ProjectRestController {
 
   @PostMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> createSupportSignature(
-      @RequestHeader Long memberId,
+          @RequestHeader(required = false) Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
@@ -109,7 +126,7 @@ public class ProjectRestController {
 
   @PutMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> modifySupportSignature(
-      @RequestHeader Long memberId,
+          @RequestHeader(required = false) Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
@@ -127,7 +144,7 @@ public class ProjectRestController {
 
   @GetMapping("/projects/lotdeal")
   public ResponseEntity<SuccessResponse<Map<String, List<LotdealProjectResponseDto>>>> getLotdeal(
-      @RequestHeader Long memberId, Pageable pageable) {
+          @RequestHeader(required = false) Long memberId, Pageable pageable) {
 
     List<LotdealProjectResponseDto> lotdealProjectResponseDtoList =
         projectForSupporterService.getLotdeal(pageable, memberId);
@@ -166,15 +183,14 @@ public class ProjectRestController {
   @GetMapping("/projects/special-exhibition")
   public ResponseEntity<SuccessResponse<Map<String, List<SpecialExhibitionResponseDto>>>>
       getSpecialExhibition(
-          @RequestHeader Long memberId,
+          @RequestHeader(required = false) Long memberId,
           @RequestParam String tag,
           @PageableDefault(
                   page = 0,
                   size = 20,
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
-              Pageable pageable
-          ) {
+              Pageable pageable) {
 
     List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList =
         projectForSupporterService.getSpecialExhibition(pageable, tag, memberId);
