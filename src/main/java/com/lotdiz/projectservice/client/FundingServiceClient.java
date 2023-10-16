@@ -10,7 +10,6 @@ import com.lotdiz.projectservice.dto.response.TargetAmountAchievedProjectsDto;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-//@FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
-@FeignClient(name = "fundingServiceClient", url = "https://e53d10c6-1cf7-4b4b-8ffb-47f7b1ed3862.mock.pstmn.io")
+@FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
 public interface FundingServiceClient {
 
   @GetMapping("/projects/achievement")
