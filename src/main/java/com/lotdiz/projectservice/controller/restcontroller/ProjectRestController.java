@@ -4,6 +4,7 @@ import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDt
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
+import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
+  private final ProjectService projectService;
 
   @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
@@ -173,8 +175,7 @@ public class ProjectRestController {
                   size = 20,
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
-              Pageable pageable
-          ) {
+              Pageable pageable) {
 
     List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList =
         projectForSupporterService.getSpecialExhibition(pageable, tag, memberId);
@@ -186,6 +187,29 @@ public class ProjectRestController {
                 .message(HttpStatus.OK.name())
                 .detail("기획전 조회 성공")
                 .data(Map.of("special-exhibition", specialExhibitionResponseDtoList))
+                .build());
+  }
+
+  @GetMapping("/makers/projects")
+  public ResponseEntity<SuccessResponse<ProjectRegisteredByMakerResponseDto>>
+      getProjectListRegisteredByMaker(
+          @RequestHeader Long memberId,
+          @PageableDefault(
+                  page = 0,
+                  size = 20,
+                  sort = {"createdAt"},
+                  direction = Sort.Direction.DESC)
+              Pageable pageable) {
+    ProjectRegisteredByMakerResponseDto projectRegisteredByMakerResponseDto =
+        projectService.getRegisteredProject(memberId, pageable);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<ProjectRegisteredByMakerResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .detail("등록된 프로젝트 조회")
+                .message(HttpStatus.OK.name())
+                .data(projectRegisteredByMakerResponseDto)
                 .build());
   }
 }

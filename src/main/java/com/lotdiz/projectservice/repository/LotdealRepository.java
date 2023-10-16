@@ -1,26 +1,29 @@
 package com.lotdiz.projectservice.repository;
 
+import com.lotdiz.projectservice.dto.LotdealDueDateDto;
 import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Project;
-
 import java.time.LocalDateTime;
-import java.util.Optional;
-
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface LotdealRepository extends JpaRepository<Lotdeal, Long> {
+public interface  LotdealRepository extends JpaRepository<Lotdeal, Long> {
 
   @Query(
       "SELECT l FROM Lotdeal l WHERE l.project.projectId = :#{#project.projectId} AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
   Lotdeal findByProjectAndLotdealing(
       @Param("project") Project project, @Param("now") LocalDateTime now);
 
-  @Query("SELECT l FROM Lotdeal l JOIN l.project p WHERE p.projectIsAuthorized = :projectIsAuthorized AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
+  @Query(
+      "SELECT l FROM Lotdeal l JOIN l.project p WHERE p.projectIsAuthorized = :projectIsAuthorized AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
   Page<Lotdeal> findAllLotdealing(
-          LocalDateTime now, Boolean projectIsAuthorized, Pageable pageable
-  );
+      LocalDateTime now, Boolean projectIsAuthorized, Pageable pageable);
+
+  @Query(
+      "SELECT NEW com.lotdiz.projectservice.dto.LotdealDueDateDto(l.project.projectId, l.lotdealDueTime) FROM Lotdeal l WHERE l.project.projectId IN (:projectIds)")
+  List<LotdealDueDateDto> findLotdealDueDateByProjectId(@Param("projectIds") List<Long> projectIds);
 }
