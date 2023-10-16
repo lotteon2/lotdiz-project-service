@@ -12,7 +12,6 @@ import com.lotdiz.projectservice.exception.ProductEntityNotFoundException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.repository.ProductRepository;
 import com.lotdiz.projectservice.repository.ProjectRepository;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,26 +52,21 @@ public class FundingClientService {
   }
 
   @Transactional(readOnly = true)
-  public List<GetProjectProductInfoResponseDto> getProjectProductInfo(
-      List<GetProjectProductInfoRequestDto> getProjectProductInfoRequestDtos) {
+  public GetProjectProductInfoResponseDto getProjectProductInfo(
+      GetProjectProductInfoRequestDto getProjectProductInfoRequestDto) {
 
-    List<GetProjectProductInfoResponseDto> getProjectProductInfoResponseDtos = new ArrayList<>();
+    Project project =
+        projectRepository
+            .findById(getProjectProductInfoRequestDto.getProjectId())
+            .orElseThrow(ProjectEntityNotFoundException::new);
 
-    for (GetProjectProductInfoRequestDto p : getProjectProductInfoRequestDtos) {
-      Project project =
-          projectRepository
-              .findById(p.getProjectId())
-              .orElseThrow(ProjectEntityNotFoundException::new);
+    List<GetProductInfoDto> product =
+        productRepository.findByProductIds(getProjectProductInfoRequestDto.getProductIds());
 
-      List<GetProductInfoDto> product = productRepository.findByProductIds(p.getProductIds());
-
-      getProjectProductInfoResponseDtos.add(
-          GetProjectProductInfoResponseDto.builder()
-              .projectId(project.getProjectId())
-              .projectDescription(project.getProjectDescription())
-              .products(product)
-              .build());
-    }
-    return getProjectProductInfoResponseDtos;
+    return GetProjectProductInfoResponseDto.builder()
+        .projectId(project.getProjectId())
+        .projectDescription(project.getProjectDescription())
+        .products(product)
+        .build();
   }
 }

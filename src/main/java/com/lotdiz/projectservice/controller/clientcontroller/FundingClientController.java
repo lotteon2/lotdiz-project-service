@@ -62,17 +62,17 @@ public class FundingClientController {
   }
 
   @PostMapping("/projects/get-project-product-info")
-  SuccessResponse<List<GetProjectProductInfoResponseDto>> getProjectProductInfo(
-      @RequestBody List<GetProjectProductInfoRequestDto> getProjectProductInfoRequestDtos) {
+  SuccessResponse<GetProjectProductInfoResponseDto> getProjectProductInfo(
+      @RequestBody GetProjectProductInfoRequestDto getProjectProductInfoRequestDto) {
 
-    List<GetProjectProductInfoResponseDto> getProjectProductInfoResponseDtos =
-        fundingClientService.getProjectProductInfo(getProjectProductInfoRequestDtos);
+    GetProjectProductInfoResponseDto getProjectProductInfoResponseDto =
+        fundingClientService.getProjectProductInfo(getProjectProductInfoRequestDto);
 
-    return SuccessResponse.<List<GetProjectProductInfoResponseDto>>builder()
+    return SuccessResponse.<GetProjectProductInfoResponseDto>builder()
         .code(String.valueOf(HttpStatus.OK.value()))
         .message(HttpStatus.OK.name())
         .detail("project-service : 프로젝트, 상품 정보 조회 요청 성공")
-        .data(getProjectProductInfoResponseDtos)
+        .data(getProjectProductInfoResponseDto)
         .build();
   }
 }
