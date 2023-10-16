@@ -16,4 +16,5 @@ public class ProjectDto {
   private Long accumulatedFundingAmount;
   private LocalDateTime lotdealDueTime;
   private String projectStatus;
+  private Boolean isAuthorized;
 }

@@ -119,6 +119,7 @@ public class ProjectService {
                                 .getFundingAchievementResultOfProjects()
                                 .get(project.getProjectId().toString())
                                 .getAccumulatedFundingAmount())
+                        .isAuthorized(project.getProjectIsAuthorized())
                         .build()));
 
     return ProjectRegisteredByMakerResponseDto.builder().projects(projectDtoList).build();
