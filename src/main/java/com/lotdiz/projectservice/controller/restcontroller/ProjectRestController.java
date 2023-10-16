@@ -4,6 +4,7 @@ import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDt
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
+import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
+  private final ProjectService projectService;
 
   @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
@@ -173,11 +175,7 @@ public class ProjectRestController {
                   size = 20,
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
-              Pageable pageable
-          ) {
-
-    List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList =
-        projectForSupporterService.getSpecialExhibition(pageable, tag, memberId);
+              Pageable pageable) {
 
     return ResponseEntity.ok()
         .body(
@@ -185,7 +183,23 @@ public class ProjectRestController {
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .message(HttpStatus.OK.name())
                 .detail("기획전 조회 성공")
-                .data(Map.of("special-exhibition", specialExhibitionResponseDtoList))
+                .data(
+                    Map.of(
+                        "special-exhibition",
+                        projectForSupporterService.getSpecialExhibition(pageable, tag, memberId)))
+                .build());
+  }
+
+  @GetMapping("/makers/projects/{projectId}/status")
+  public ResponseEntity<SuccessResponse<RegisteredProjectDetailForStatusResponseDto>>
+      getRegisteredProjectDetailStatus(@PathVariable Long projectId) {
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<RegisteredProjectDetailForStatusResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .detail(HttpStatus.OK.name())
+                .message("등록된 프로젝트 상세 조회")
+                .data(projectService.getStatusOfRegisteredProject(projectId))
                 .build());
   }
 }
