@@ -2,7 +2,6 @@ package com.lotdiz.projectservice.service;
 
 import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.client.MemberServiceClient;
-import com.lotdiz.projectservice.dto.BestLotPlusDto;
 import com.lotdiz.projectservice.dto.ProductDto;
 import com.lotdiz.projectservice.dto.ProjectImageDto;
 import com.lotdiz.projectservice.dto.request.FundingAchievementResultOfProjectRequestDto;
@@ -57,7 +56,7 @@ public class ProjectForSupporterService {
     List<BestLotdPlusResponseDto> bestLotdPlusResponseDtos = new ArrayList<>();
     List<Long> projectIds = new ArrayList<>();
 
-    List<BestLotPlusDto> bestlotdPlusList =
+    List<Project> bestlotdPlusList =
         projectRepository.findBestLotdPlus(LocalDateTime.now(), PageRequest.of(0, 6));
 
     List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =
@@ -65,11 +64,11 @@ public class ProjectForSupporterService {
 
     bestlotdPlusList.forEach(
         p -> {
-          projectIds.add(p.getProject().getProjectId());
+          projectIds.add(p.getProjectId());
           fundingAchievementResultOfProjectRequestDtos.add(
               FundingAchievementResultOfProjectRequestDto.builder()
-                  .projectId(p.getProject().getProjectId())
-                  .projectTargetAmount(p.getProject().getProjectTargetAmount())
+                  .projectId(p.getProjectId())
+                  .projectTargetAmount(p.getProjectTargetAmount())
                   .build());
         });
 
@@ -79,15 +78,15 @@ public class ProjectForSupporterService {
         fundingAchievementResultOfProjectResponseDtoList =
             getFundingProjectClient(circuitBreaker, fundingAchievementResultOfProjectRequestDtos);
 
-    for (BestLotPlusDto lotPlus : bestlotdPlusList) {
+    for (Project lotPlus : bestlotdPlusList) {
       BestLotdPlusResponseDto bestLotdPlusResponseDto =
           BestLotdPlusResponseDto.toDto(
-              lotPlus.getProject(),
+              lotPlus,
               projectImageRepository.findProjectImageByProjectAndAndProjectImageIsThumbnail(
-                  lotPlus.getProject(), true),
-              likedProjects.get(Long.toString(lotPlus.getProject().getProjectId())),
+                  lotPlus, true),
+              likedProjects.get(Long.toString(lotPlus.getProjectId())),
               fundingAchievementResultOfProjectResponseDtoList.get(
-                  Long.toString(lotPlus.getProject().getProjectId())));
+                  Long.toString(lotPlus.getProjectId())));
 
       bestLotdPlusResponseDtos.add(bestLotdPlusResponseDto);
     }
@@ -254,23 +253,22 @@ public class ProjectForSupporterService {
     List<LotdealProjectResponseDto> lotdealProjectResponseDtoList = new ArrayList<>();
 
     List<Long> projectIds = new ArrayList<>();
-    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos = new ArrayList<>();
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =
+        new ArrayList<>();
     Page<Lotdeal> lotdealProjects =
         lotdealRepository.findAllLotdealing(LocalDateTime.now(), true, pageable);
 
     lotdealProjects.forEach(
-            p -> {
-              projectIds.add(p.getProject().getProjectId());
-              fundingAchievementResultOfProjectRequestDtos.add(
-                      FundingAchievementResultOfProjectRequestDto.builder()
-                              .projectId(p.getProject().getProjectId())
-                              .projectTargetAmount(p.getProject().getProjectTargetAmount())
-                              .build());
-            });
+        p -> {
+          projectIds.add(p.getProject().getProjectId());
+          fundingAchievementResultOfProjectRequestDtos.add(
+              FundingAchievementResultOfProjectRequestDto.builder()
+                  .projectId(p.getProject().getProjectId())
+                  .projectTargetAmount(p.getProject().getProjectTargetAmount())
+                  .build());
+        });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
-
-
 
     HashMap<String, FundingAchievementResultOfProjectResponseDto>
         fundingAchievementResultOfProjectResponseDtos =
@@ -306,20 +304,21 @@ public class ProjectForSupporterService {
 
     List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList = new ArrayList<>();
     List<Long> projectIds = new ArrayList<>();
-    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos = new ArrayList<>();
+    List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =
+        new ArrayList<>();
 
     Page<Project> projects =
         projectRepository.findByProjectTagAndProjectIsAuthorized(tag, true, pageable);
 
     projects.forEach(
-            p -> {
-              projectIds.add(p.getProjectId());
-              fundingAchievementResultOfProjectRequestDtos.add(
-                      FundingAchievementResultOfProjectRequestDto.builder()
-                              .projectId(p.getProjectId())
-                              .projectTargetAmount(p.getProjectTargetAmount())
-                              .build());
-            });
+        p -> {
+          projectIds.add(p.getProjectId());
+          fundingAchievementResultOfProjectRequestDtos.add(
+              FundingAchievementResultOfProjectRequestDto.builder()
+                  .projectId(p.getProjectId())
+                  .projectTargetAmount(p.getProjectTargetAmount())
+                  .build());
+        });
 
     Map<String, Boolean> likedProjects = getIsLikeClient(circuitBreaker, memberId, projectIds);
 

@@ -31,12 +31,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       String projectTag, Boolean projectIsAuthorized, Pageable pageable);
 
   @Query(
-      "select new com.lotdiz.projectservice.dto.BestLotPlusDto(p, count(s.project)) from Project p join SupportSignature s ON p.projectId = s.project.projectId "
+      "select p from Project p join SupportSignature s ON p.projectId = s.project.projectId "
           + "left join Lotdeal l on p.projectId = l.project.projectId " +
               "where l.lotdealDueTime < :now or l.lotdealStartTime > :now or l.lotdealId is null " +
               "group by p.projectId order by count(s.project) desc")
-  List<BestLotPlusDto> findBestLotdPlus(LocalDateTime now, Pageable pageable);
+  List<Project> findBestLotdPlus(LocalDateTime now, Pageable pageable);
 
+  @Query(
       "select new com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto(p.projectId, p.projectName, " +
               "p.projectTargetAmount, p.projectStatus, i.projectImageUrl, m.makerName, p.projectDueDate) " +
               "from Project p join Maker m on p.maker.makerId = m.makerId join ProjectImage i on p.projectId = i.project.projectId "
