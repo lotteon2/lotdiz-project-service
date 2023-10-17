@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
 public interface FundingServiceClient {
 
@@ -28,7 +27,7 @@ public interface FundingServiceClient {
 
   @GetMapping("/projects/{projectId}/achievement")
   SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto> getFundingOfProjectDetail(
-      @PathVariable Long projectId);
+      @PathVariable Long projectId, @RequestParam Long projectTargetAmount);
 
   @PostMapping("/fundings/check-target-amount-exceed")
   SuccessResponse<List<GetTargetAmountCheckExceedResponseDto>> getTargetAmountCheckExceed(

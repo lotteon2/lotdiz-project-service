@@ -162,7 +162,8 @@ public class ProjectForSupporterService {
 
     FundingAchievementResultOfProjectDetailResponseDto
         fundingAchievementResultOfProjectDetailResponseDto =
-            getFundingOfProjectDetailClient(circuitBreaker, projectId);
+            getFundingOfProjectDetailClient(
+                circuitBreaker, projectId, project.getProjectTargetAmount());
 
     Lotdeal lotdeal = lotdealRepository.findByProjectAndLotdealing(project, LocalDateTime.now());
 
@@ -359,11 +360,11 @@ public class ProjectForSupporterService {
   }
 
   public FundingAchievementResultOfProjectDetailResponseDto getFundingOfProjectDetailClient(
-      CircuitBreaker circuitBreaker, Long projectId) {
+      CircuitBreaker circuitBreaker, Long projectId, Long projectTargetAmount) {
 
     return (FundingAchievementResultOfProjectDetailResponseDto)
         circuitBreaker.run(
-            () -> fundingServiceClient.getFundingOfProjectDetail(projectId).getData(),
+            () -> fundingServiceClient.getFundingOfProjectDetail(projectId, projectTargetAmount).getData(),
             throwable -> new FundingServiceClientOutOfServiceException());
   }
 
