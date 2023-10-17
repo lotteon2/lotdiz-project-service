@@ -9,15 +9,14 @@ import lombok.Getter;
 @Builder
 public class ProjectRegisterInformationRequestDto {
   private final String projectName;
-  private final String projectThumbnailImageUrl;
-  private final List<String> projectImages;
   private final String projectDescription;
-  private final String projectStoryImageUrl;
-  private final String categoryName;
   private final String projectTag;
   private final Long projectTargetAmount;
+  private final String projectStoryImageUrl;
   private final LocalDateTime projectDueDate;
-
+  private final String projectThumbnailImageUrl;
+  private final List<String> projectImages;
+  private final Long categoryId;
   private final boolean isLotdeal;
   private MakerRegisterRequestDto maker;
   private List<ProductInfoForProjectRequestDto> products;

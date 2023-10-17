@@ -384,6 +384,7 @@ public class ProjectForSupporterService {
   }
 
   public Long getLikeCountClient(CircuitBreaker circuitBreaker, Long projectId) {
+
     return (Long)
         circuitBreaker.run(
             () ->
