@@ -1,21 +1,19 @@
 package com.lotdiz.projectservice.repository;
 
 import com.lotdiz.projectservice.dto.response.GetProjectInfoForLikesResponseDto;
+import com.lotdiz.projectservice.dto.BestLotPlusDto;
+import com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto;
+
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.entity.ProjectStatus;
-
-import java.util.Optional;
-import java.util.List;
 import java.time.LocalDateTime;
-
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
@@ -25,7 +23,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       @Param(value = "categoryName") String categoryName,
       @Param(value = "projectIsAuthorized") Boolean projectIsAuthorized,
       Pageable pageable);
-  
+
   @Query("select p from Project p " + "join fetch p.maker m " + "where p.projectDueDate < :now")
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
@@ -37,6 +35,20 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
   Page<Project> findByProjectTagAndProjectIsAuthorized(String projectTag, Boolean projectIsAuthorized, Pageable pageable);
 
+  @Query(
+      "select p from Project p join SupportSignature s ON p.projectId = s.project.projectId "
+          + "left join Lotdeal l on p.projectId = l.project.projectId " +
+              "where l.lotdealDueTime < :now or l.lotdealStartTime > :now or l.lotdealId is null " +
+              "group by p.projectId order by count(s.project) desc")
+  List<Project> findBestLotdPlus(LocalDateTime now, Pageable pageable);
+
+  @Query(
+      "select new com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto(p.projectId, p.projectName, " +
+              "p.projectTargetAmount, p.projectStatus, i.projectImageUrl, m.makerName, p.projectDueDate) " +
+              "from Project p join Maker m on p.maker.makerId = m.makerId join ProjectImage i on p.projectId = i.project.projectId "
+          + "and i.projectImageIsThumbnail = true where p.projectId in :projectIds")
+  List<ProjectAndMakerInfoDto> findMakerProject(List<Long> projectIds);
+
   @Modifying
   @Query(
       "update Project p set p.projectStatus = :projectStatus where p.projectDueDate < :now and p.projectId in :projectIds")
@@ -44,5 +56,4 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       @Param("projectStatus") ProjectStatus projectStatus,
       @Param("now") LocalDateTime now,
       @Param("projectIds") List<Long> projectIds);
-  
 }
