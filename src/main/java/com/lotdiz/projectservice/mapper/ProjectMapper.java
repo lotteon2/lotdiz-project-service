@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.mapper;
 
+import com.lotdiz.projectservice.dto.request.CreateProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
 import com.lotdiz.projectservice.entity.Project;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ProjectMapper {
   @IterableMapping(qualifiedByName = "PIFATARD")
   List<ProjectInformationForAchievedTargetAmountRequestDto>
       getListOfProjectInformationForAchievedTargetAmountRequestDto(List<Project> projects);
+
+  CreateProjectRequestDto projectEntityToCreateProjectRequestDto(Project project);
 }
