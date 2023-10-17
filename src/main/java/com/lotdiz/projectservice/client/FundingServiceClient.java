@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.client;
 
+import com.lotdiz.projectservice.dto.request.FundingAchievementResultOfProjectRequestDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
 import com.lotdiz.projectservice.utils.SuccessResponse;
@@ -21,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
 public interface FundingServiceClient {
 
-  @GetMapping("/projects/achievement")
+  @PostMapping("/projects/achievement")
   SuccessResponse<HashMap<String, FundingAchievementResultOfProjectResponseDto>>
-      getFundingOfProject(@RequestParam List<Long> projects);
+      getFundingOfProject(@RequestBody List<FundingAchievementResultOfProjectRequestDto> projects);
 
   @GetMapping("/projects/{projectId}/achievement")
   SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto> getFundingOfProjectDetail(
