@@ -13,5 +13,5 @@ public class MakerRegisterRequestDto {
   private final String makerPhoneNumber;
   @Builder.Default private final String makerKakaoUrl = null;
   @Builder.Default private final String makerHomeUrl = null;
-  @Builder.Default private final String makerSNSUrl = null;
+  @Builder.Default private final String makerSnsUrl = null;
 }

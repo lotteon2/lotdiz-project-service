@@ -8,10 +8,7 @@ import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-// @FeignClient(name = "memberServiceClient", url = "${endpoint.member-service}")
-@FeignClient(
-    name = "memberServiceClient",
-    url = "https://e53d10c6-1cf7-4b4b-8ffb-47f7b1ed3862.mock.pstmn.io")
+@FeignClient(name = "memberServiceClient", url = "${endpoint.member-service}")
 public interface MemberServiceClient {
 
   @GetMapping("/projects/islike")
