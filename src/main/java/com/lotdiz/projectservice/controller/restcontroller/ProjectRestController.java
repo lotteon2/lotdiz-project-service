@@ -3,12 +3,16 @@ package com.lotdiz.projectservice.controller.restcontroller;
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
+import com.lotdiz.projectservice.dto.response.ProjectByCategoryResponseDto;
+import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
+import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -16,12 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
+  private final ProjectService projectService;
 
   @GetMapping("/projects/category/{categoryName}")
   public ResponseEntity<SuccessResponse<Map<String, List<ProjectByCategoryResponseDto>>>>
@@ -144,8 +150,17 @@ public class ProjectRestController {
 
   @PostMapping("/project/makers/projects")
   public ResponseEntity<SuccessResponse<String>> registerProject(
-      @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationRequestDto) {
-    return ResponseEntity.ok().body(SuccessResponse.<String>builder().build());
+      @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationDto,
+      @RequestHeader Long memberId) {
+    projectService.createProject(memberId, projectRegisterInformationDto);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<String>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("프로젝트가 등록되었습니다!")
+                .build());
   }
 
   @GetMapping("/projects/banner")
@@ -173,8 +188,7 @@ public class ProjectRestController {
                   size = 20,
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
-              Pageable pageable
-          ) {
+              Pageable pageable) {
 
     List<SpecialExhibitionResponseDto> specialExhibitionResponseDtoList =
         projectForSupporterService.getSpecialExhibition(pageable, tag, memberId);

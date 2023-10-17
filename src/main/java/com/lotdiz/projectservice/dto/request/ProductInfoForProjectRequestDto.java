@@ -6,9 +6,9 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ProductInfoForProjectRequestDto {
-    private final String productName;
-    private final Long productPrice;
-    private final String productDescription;
-    private final Long productRegisteredStockQuantity;
+  private final String productName;
+  private final Long productPrice;
+  private final String productDescription;
+  private final Long productRegisteredStockQuantity;
   private final Long productCurrentStockQuantity;
 }
