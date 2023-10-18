@@ -7,6 +7,7 @@ import com.lotdiz.projectservice.entity.Project;
 import java.util.List;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")

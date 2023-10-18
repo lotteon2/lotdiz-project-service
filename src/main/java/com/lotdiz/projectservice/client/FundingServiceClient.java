@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.client;
 
+import com.lotdiz.projectservice.dto.request.FundingAchievementResultOfProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.GetTargetAmountCheckExceedRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
@@ -21,13 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
 public interface FundingServiceClient {
 
-  @GetMapping("/projects/achievement")
+  @PostMapping("/projects/achievement")
   SuccessResponse<HashMap<String, FundingAchievementResultOfProjectResponseDto>>
-      getFundingOfProject(@RequestParam List<Long> projects);
+      getFundingOfProject(@RequestBody List<FundingAchievementResultOfProjectRequestDto> projects);
 
   @GetMapping("/projects/{projectId}/achievement")
   SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto> getFundingOfProjectDetail(
-      @PathVariable Long projectId);
+      @PathVariable Long projectId, @RequestParam Long projectTargetAmount);
 
   @PostMapping("/fundings/check-target-amount-exceed")
   SuccessResponse<List<GetTargetAmountCheckExceedResponseDto>> getTargetAmountCheckExceed(

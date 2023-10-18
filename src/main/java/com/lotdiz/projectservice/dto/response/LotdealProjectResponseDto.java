@@ -27,6 +27,7 @@ public class LotdealProjectResponseDto {
 
   public static LotdealProjectResponseDto toDto (
       Project project,
+      String projectThumbnailImageUrl,
       Boolean islike,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       LocalDateTime lotdealDueTime) {
@@ -35,7 +36,7 @@ public class LotdealProjectResponseDto {
         .projectId(project.getProjectId())
         .projectName(project.getProjectName())
         .remainingDays(ChronoUnit.DAYS.between(LocalDateTime.now(), project.getProjectDueDate()))
-        .projectThumbnailImageUrl(project.getProjectStoryImageUrl())
+        .projectThumbnailImageUrl(projectThumbnailImageUrl)
         .makerName(project.getMaker().getMakerName())
         .fundingAchievementRate(
             fundingAchievementResultOfProjectResponseDto.getFundingAchievementRate())

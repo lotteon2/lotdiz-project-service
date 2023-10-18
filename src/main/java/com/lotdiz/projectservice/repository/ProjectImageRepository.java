@@ -18,4 +18,9 @@ public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long
           + "and p.projectImageIsThumbnail= true")
   List<ProjectThumbnailImageDto> findProjectThumbnailImageByProjectId(
       @Param("projectIds") List<Long> projectIds);
+
+  @Query(
+      "select i.projectImageUrl from ProjectImage i where i.project.projectId = :#{#project.projectId} and i.projectImageIsThumbnail = :projectImageIsThumbnail")
+  String findProjectImageByProjectAndAndProjectImageIsThumbnail(
+      Project project, Boolean projectImageIsThumbnail);
 }
