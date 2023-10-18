@@ -216,7 +216,7 @@ public class ProjectRestController {
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .message(HttpStatus.OK.name())
                 .detail("기획전 조회 성공")
-                .data(Map.of("special-exhibition", specialExhibitionResponseDtoList))
+                .data(Map.of("specialExhibitions", specialExhibitionResponseDtoList))
                 .build());
   }
 }
