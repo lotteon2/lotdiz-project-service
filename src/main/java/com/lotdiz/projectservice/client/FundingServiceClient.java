@@ -1,6 +1,7 @@
 package com.lotdiz.projectservice.client;
 
 import com.lotdiz.projectservice.dto.request.GetTargetAmountCheckExceedRequestDto;
+import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultMapResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
@@ -39,7 +40,7 @@ public interface FundingServiceClient {
           List<ProjectInformationForAchievedTargetAmountRequestDto>
               getTargetAmountCheckExceedRequestDtos);
 
-  @GetMapping("/fundings/registered-projects-check")
+  @PostMapping("/fundings/registered-projects-check")
   SuccessResponse<FundingAchievementResultMapResponseDto> getRegisteredProject(
-      @RequestParam List<Long> projectIds);
+      @RequestBody ProjectAmountWithIdRequestDto projectAmountWithIdRequestDto);
 }

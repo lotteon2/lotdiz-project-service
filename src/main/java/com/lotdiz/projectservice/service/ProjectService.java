@@ -2,8 +2,10 @@ package com.lotdiz.projectservice.service;
 
 import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.dto.LotdealDueDateDto;
+import com.lotdiz.projectservice.dto.ProjectAmountWithIdDto;
 import com.lotdiz.projectservice.dto.ProjectDto;
 import com.lotdiz.projectservice.dto.ProjectThumbnailImageDto;
+import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultMapResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectRegisteredByMakerResponseDto;
 import com.lotdiz.projectservice.entity.Maker;
@@ -58,15 +60,29 @@ public class ProjectService {
         makerRepository.findByMemberId(memberId).orElseThrow(MakerEntityNotfoundException::new);
 
     Page<Project> registeredProjects = projectRepository.findByRegisteredProjects(maker, pageable);
-    // 한 페이지에 보여줄 프로젝트 id 목록
-    List<Long> projectIds = new ArrayList<>();
-    registeredProjects.getContent().forEach(project -> projectIds.add(project.getProjectId()));
+    List<Long> projectIds =
+        registeredProjects.stream().map(Project::getProjectId).collect(Collectors.toList());
+
+    List<ProjectAmountWithIdDto> projectAmountWithIdDtos =
+        registeredProjects.stream()
+            .map(
+                item ->
+                    ProjectAmountWithIdDto.builder()
+                        .projectId(item.getProjectId())
+                        .targetAmount(item.getProjectTargetAmount())
+                        .build())
+            .collect(Collectors.toList());
+
+    ProjectAmountWithIdRequestDto amountWithIdRequestDto =
+        ProjectAmountWithIdRequestDto.builder()
+            .projectAmountWithIdDtos(projectAmountWithIdDtos)
+            .build();
 
     // 프로젝트 id를 key로 하는 펀딩 달성률, 누적 펀딩 금액 데이터
     FundingAchievementResultMapResponseDto projectStatisticDtos =
         (FundingAchievementResultMapResponseDto)
             circuitBreaker.run(
-                () -> fundingServiceClient.getRegisteredProject(projectIds).getData(),
+                () -> fundingServiceClient.getRegisteredProject(amountWithIdRequestDto).getData(),
                 throwable -> new FundingServiceClientOutOfServiceException());
 
     // 프로젝트 id를 key로 하는 썸네일 이미지

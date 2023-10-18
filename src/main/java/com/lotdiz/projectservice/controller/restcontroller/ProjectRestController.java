@@ -200,8 +200,6 @@ public class ProjectRestController {
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
               Pageable pageable) {
-    ProjectRegisteredByMakerResponseDto projectRegisteredByMakerResponseDto =
-        projectService.getRegisteredProject(memberId, pageable);
 
     return ResponseEntity.ok()
         .body(
@@ -209,7 +207,7 @@ public class ProjectRestController {
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .detail("등록된 프로젝트 조회")
                 .message(HttpStatus.OK.name())
-                .data(projectRegisteredByMakerResponseDto)
+                .data(projectService.getRegisteredProject(memberId, pageable))
                 .build());
   }
 }

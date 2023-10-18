@@ -12,8 +12,8 @@ public class ProjectDto {
   private Long remainingDays;
   private String projectThumbnailImageUrl;
   private String makerName;
-  private Long fundingAchievementRate;
-  private Long accumulatedFundingAmount;
+  private String fundingAchievementRate;
+  private String accumulatedFundingAmount;
   private LocalDateTime lotdealDueTime;
   private String projectStatus;
   private Boolean isAuthorized;
