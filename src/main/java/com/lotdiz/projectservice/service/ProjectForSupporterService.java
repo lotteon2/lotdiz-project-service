@@ -56,7 +56,7 @@ public class ProjectForSupporterService {
     List<BestLotdPlusResponseDto> bestLotdPlusResponseDtos = new ArrayList<>();
     List<Long> projectIds = new ArrayList<>();
 
-    List<Project> bestlotdPlusList =
+    Page<Project> bestlotdPlusList =
         projectRepository.findBestLotdPlus(LocalDateTime.now(), PageRequest.of(0, 6));
 
     List<FundingAchievementResultOfProjectRequestDto> fundingAchievementResultOfProjectRequestDtos =

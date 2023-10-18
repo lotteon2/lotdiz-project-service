@@ -15,11 +15,15 @@ import org.springframework.data.repository.query.Param;
 public interface LotdealRepository extends JpaRepository<Lotdeal, Long> {
 
   @Query(
-      "SELECT l FROM Lotdeal l WHERE l.project.projectId = :#{#project.projectId} AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
+      "select l from Lotdeal l where l.project.projectId = :#{#project.projectId} AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
   Lotdeal findByProjectAndLotdealing(
       @Param("project") Project project, @Param("now") LocalDateTime now);
 
-  @Query("SELECT l FROM Lotdeal l JOIN l.project p WHERE p.projectIsAuthorized = :projectIsAuthorized AND l.lotdealStartTime <= :now AND l.lotdealDueTime > :now")
+  @Query(value = "select l from Lotdeal l join fetch l.project p where p.projectIsAuthorized = :projectIsAuthorized " +
+          "and l.lotdealStartTime <= :now and l.lotdealDueTime > :now"
+          , countQuery = "select count(l) from Lotdeal l join l.project p where p.projectIsAuthorized = :projectIsAuthorized " +
+          "and l.lotdealStartTime <= :now and l.lotdealDueTime > :now"
+  )
   Page<Lotdeal> findAllLotdealing(
           LocalDateTime now, Boolean projectIsAuthorized, Pageable pageable
   );
