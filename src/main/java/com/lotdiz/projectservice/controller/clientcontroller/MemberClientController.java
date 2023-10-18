@@ -9,9 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,18 +17,12 @@ public class MemberClientController {
 
   private final MemberClientService memberClientService;
 
-  @PostMapping("/likes")
+  @GetMapping ("/likes")
   private SuccessResponse<List<GetProjectInfoForLikesResponseDto>> getProjectInfoForLikes(
-      @RequestBody List<Long> projectIds,
-      @PageableDefault(
-              page = 0,
-              size = 10,
-              sort = {"createdAt"},
-              direction = Sort.Direction.DESC)
-          Pageable pageable) {
+      @RequestParam List<Long> projectIds) {
 
     List<GetProjectInfoForLikesResponseDto> getProjectInfoForLikesResponseDtos =
-        memberClientService.getProjectInfoForLikes(projectIds, pageable);
+        memberClientService.getProjectInfoForLikes(projectIds);
 
     return SuccessResponse.<List<GetProjectInfoForLikesResponseDto>>builder()
         .code(String.valueOf(HttpStatus.OK.value()))
