@@ -16,7 +16,7 @@ public class MemberClientService {
 
   @Transactional(readOnly = true)
   public List<GetProjectInfoForLikesResponseDto> getProjectInfoForLikes(
-      List<Long> projectIds, Pageable pageable) {
-    return projectRepository.findProjectInfoForLikes(projectIds, pageable);
+      List<Long> projectIds) {
+    return projectRepository.findProjectInfoForLikes(projectIds);
   }
 }

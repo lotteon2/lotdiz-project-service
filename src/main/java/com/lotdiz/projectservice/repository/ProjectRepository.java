@@ -16,31 +16,32 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
   @Query(
-      "SELECT p FROM Project p JOIN p.category c WHERE c.categoryName =:categoryName AND p.projectIsAuthorized  =:projectIsAuthorized")
+      "select p from Project p inner join p.category c where c.categoryName =:categoryName "
+          + "and p.projectIsAuthorized  =:projectIsAuthorized")
   Page<Project> findByCategoryAndProjectIsAuthorized(
-      @Param(value = "categoryName") String categoryName,
-      @Param(value = "projectIsAuthorized") Boolean projectIsAuthorized,
-      Pageable pageable);
+      String categoryName, Boolean projectIsAuthorized, Pageable pageable);
 
-  @Query("select p from Project p " + "join fetch p.maker m " + "where p.projectDueDate < :now")
+  @Query(
+      "select p from Project p "
+          + "join fetch p.maker m join fetch p.lotdeal l "
+          + "where p.projectDueDate < :now")
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
   @Query(
       "select new com.lotdiz.projectservice.dto.response.GetProjectInfoForLikesResponseDto(p.projectName, i.projectImageUrl, m.makerName, p.projectDueDate) "
           + "from Project p join fetch Maker m on p.maker.makerId = m.makerId join fetch ProjectImage i on p.projectId = i.project.projectId "
           + "and i.projectImageIsThumbnail = true where p.projectId in :projectIds")
-  List<GetProjectInfoForLikesResponseDto> findProjectInfoForLikes(
-      List<Long> projectIds, Pageable pageable);
+  List<GetProjectInfoForLikesResponseDto> findProjectInfoForLikes(List<Long> projectIds);
 
   Page<Project> findByProjectTagAndProjectIsAuthorized(
       String projectTag, Boolean projectIsAuthorized, Pageable pageable);
 
   @Query(
-      "select p from Project p join SupportSignature s ON p.projectId = s.project.projectId "
+      "select p from Project p join SupportSignature s on p.projectId = s.project.projectId "
           + "left join Lotdeal l on p.projectId = l.project.projectId "
           + "where l.lotdealDueTime < :now or l.lotdealStartTime > :now or l.lotdealId is null "
           + "group by p.projectId order by count(s.project) desc")
-  List<Project> findBestLotdPlus(LocalDateTime now, Pageable pageable);
+  Page<Project> findBestLotdPlus(LocalDateTime now, Pageable pageable);
 
   @Query(
       "select new com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto(p.projectId, p.projectName, "
