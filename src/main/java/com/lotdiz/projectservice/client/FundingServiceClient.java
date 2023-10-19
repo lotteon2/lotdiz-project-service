@@ -44,8 +44,4 @@ public interface FundingServiceClient {
   @PostMapping("/fundings/registered-projects-check")
   SuccessResponse<FundingAchievementResultMapResponseDto> getRegisteredProject(
       @RequestBody ProjectAmountWithIdRequestDto projectAmountWithIdRequestDto);
-
-  @GetMapping("/projects/{projectId}/achievement-information")
-  SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto>
-      getFundingInformationOfProjectDetail(@PathVariable Long projectId);
 }
