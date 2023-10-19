@@ -21,7 +21,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
   Page<Project> findByCategoryAndProjectIsAuthorized(
       String categoryName, Boolean projectIsAuthorized, Pageable pageable);
 
-  @Query("select p from Project p " + "join fetch p.maker m " + "where p.projectDueDate < :now")
+  @Query(
+      "select p from Project p "
+          + "join fetch p.maker m join fetch p.lotdeal l "
+          + "where p.projectDueDate < :now")
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
   @Query(
