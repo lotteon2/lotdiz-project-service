@@ -8,20 +8,22 @@ import com.lotdiz.projectservice.dto.response.GetTargetAmountCheckExceedResponse
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.entity.ProjectStatus;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
+import com.lotdiz.projectservice.exception.ProjectCannotUpdatableException;
+import com.lotdiz.projectservice.mapper.ProjectMapper;
 import com.lotdiz.projectservice.service.ProjectNotificationService;
 import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.sns.ProjectNotificationEventPublisher;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.aws.messaging.listener.Acknowledgment;
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -35,14 +37,21 @@ public class ProjectSqsListener {
   private String SNS_DESTINATION_NAME;
 
   private final ObjectMapper mapper;
+  private final ProjectMapper projectMapper;
   private final FundingServiceClient fundingServiceClient;
 
   private final ProjectService projectService;
   private final ProjectNotificationService projectNotificationService;
   private final ProjectNotificationEventPublisher projectNotificationEventPublisher;
-  private final CircuitBreakerFactory circuitBreakerFactory;
 
-  @SuppressWarnings("unchecked")
+  private void fundingServiceClientOutOfServiceException(Throwable t) {
+    log.error(t.getMessage());
+    throw new FundingServiceClientOutOfServiceException();
+  }
+
+  @CircuitBreaker(
+      name = "circuitBreaker",
+      fallbackMethod = "fundingServiceClientOutOfServiceException")
   @SqsListener(
       value = "${cloud.aws.sqs.project-due-date-event-queue.name}",
       deletionPolicy = SqsMessageDeletionPolicy.NEVER)
@@ -50,56 +59,63 @@ public class ProjectSqsListener {
       @Payload String message, @Headers Map<String, String> headers, Acknowledgment ack) {
     log.info("receive ProjectDueDateEvent message={}", message);
 
-    // 1. 마감된 프로젝트 조회
+    // 마감된 프로젝트 조회
     List<Project> dueDateAfterNowProjects =
         projectNotificationService.getAllByProjectDueDateAfterNow();
+    // 마감된 프로젝트가 있다면
+    if (!dueDateAfterNowProjects.isEmpty()) {
+      List<GetTargetAmountCheckExceedRequestDto> getTargetAmountCheckExceedRequestDtos =
+          projectMapper.projectsToGetTargetAmountCheckExceedRequestDtos(dueDateAfterNowProjects);
 
-    List<GetTargetAmountCheckExceedRequestDto> getTargetAmountCheckExceedRequestDtos =
-        dueDateAfterNowProjects.stream()
-            .map(
-                p ->
-                    GetTargetAmountCheckExceedRequestDto.builder()
-                        .projectId(p.getProjectId())
-                        .projectName(p.getProjectName())
-                        .makerMemberId(p.getMaker().getMemberId())
-                        .projectTargetAmount(p.getProjectTargetAmount())
-                        .build())
-            .collect(Collectors.toList());
+      // funding service 요청
+      List<GetTargetAmountCheckExceedResponseDto> getTargetAmountCheckExceedResponseDtos =
+          fundingServiceClient
+              .getTargetAmountCheckExceed(getTargetAmountCheckExceedRequestDtos)
+              .getData();
 
-    // 2. 마감된 프로젝트에 펀딩한 회원들 조회 api call(funding)
-    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
-    List<GetTargetAmountCheckExceedResponseDto> getTargetAmountCheckExceedResponseDtos =
-        (List<GetTargetAmountCheckExceedResponseDto>)
-            circuitBreaker.run(
-                () ->
-                    fundingServiceClient
-                        .getTargetAmountCheckExceed(getTargetAmountCheckExceedRequestDtos)
-                        .getData(),
-                throwable -> new FundingServiceClientOutOfServiceException());
+      try {
+        // 성공 펀딩 상태 업데이트
+        List<Long> successProjectIds = getSuccessProjectIds(getTargetAmountCheckExceedResponseDtos);
+        if ((projectService.updateProjectStatusDueDateAfter(
+                ProjectStatus.SUCCESS, successProjectIds))
+            != successProjectIds.size()) {
+          throw new ProjectCannotUpdatableException();
+        }
 
-    try {
-      String jsonString = mapper.writeValueAsString(getTargetAmountCheckExceedResponseDtos);
-      // 3. 결과 aws sns에 메시지 게시
-      projectNotificationEventPublisher.send(SNS_DESTINATION_NAME, jsonString);
+        // 미달성 펀딩 상태 업데이트
+        List<Long> failedProjectIds = getFailedProjectIds(getTargetAmountCheckExceedResponseDtos);
+        if ((projectService.updateProjectStatusDueDateAfter(ProjectStatus.FAIL, failedProjectIds))
+            != failedProjectIds.size()) {
+          throw new ProjectCannotUpdatableException();
+        }
 
-      // 성공 펀딩 상태 업데이트
-      List<Long> successProjectIds = getTargetAmountCheckExceedResponseDtos
-              .stream().filter(GetTargetAmountCheckExceedResponseDto::getIsTargetAmountExceed)
-              .map(GetTargetAmountCheckExceedResponseDto::getProjectId)
-              .collect(Collectors.toList());
-      projectService.updateProjectStatusDueDateAfter(ProjectStatus.SUCCESS, successProjectIds);
+        String jsonString = mapper.writeValueAsString(getTargetAmountCheckExceedResponseDtos);
+        // 3. 결과 aws sns에 메시지 게시
+        projectNotificationEventPublisher.send(SNS_DESTINATION_NAME, jsonString);
 
-      // 미달성 펀딩 상태 업데이트
-      List<Long> failedProjectIds = getTargetAmountCheckExceedResponseDtos
-              .stream().filter(p -> !p.getIsTargetAmountExceed())
-              .map(GetTargetAmountCheckExceedResponseDto::getProjectId)
-              .collect(Collectors.toList());
-      projectService.updateProjectStatusDueDateAfter(ProjectStatus.FAIL, failedProjectIds);
-
-      // 4. sqs 메시지 삭제
-      ack.acknowledge();
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+        // 4. sqs 메시지 삭제
+        ack.acknowledge();
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
     }
+  }
+
+  @NotNull
+  private static List<Long> getFailedProjectIds(
+      List<GetTargetAmountCheckExceedResponseDto> getTargetAmountCheckExceedResponseDtos) {
+    return getTargetAmountCheckExceedResponseDtos.stream()
+        .filter(p -> !p.getIsTargetAmountExceed())
+        .map(GetTargetAmountCheckExceedResponseDto::getProjectId)
+        .collect(Collectors.toList());
+  }
+
+  @NotNull
+  private static List<Long> getSuccessProjectIds(
+      List<GetTargetAmountCheckExceedResponseDto> getTargetAmountCheckExceedResponseDtos) {
+    return getTargetAmountCheckExceedResponseDtos.stream()
+        .filter(GetTargetAmountCheckExceedResponseDto::getIsTargetAmountExceed)
+        .map(GetTargetAmountCheckExceedResponseDto::getProjectId)
+        .collect(Collectors.toList());
   }
 }
