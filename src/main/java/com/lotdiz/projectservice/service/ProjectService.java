@@ -2,6 +2,7 @@ package com.lotdiz.projectservice.service;
 
 import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.dto.LotdealDueDateDto;
+import com.lotdiz.projectservice.dto.ProductInformationForRegisteredProjectDto;
 import com.lotdiz.projectservice.dto.ProjectAmountWithIdDto;
 import com.lotdiz.projectservice.dto.ProjectDto;
 import com.lotdiz.projectservice.dto.ProjectThumbnailImageDto;
@@ -10,7 +11,9 @@ import com.lotdiz.projectservice.dto.request.ProductInfoForProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultMapResponseDto;
+import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectRegisteredByMakerResponseDto;
+import com.lotdiz.projectservice.dto.response.RegisteredProjectDetailForStatusResponseDto;
 import com.lotdiz.projectservice.entity.Category;
 import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Maker;
@@ -21,10 +24,13 @@ import com.lotdiz.projectservice.entity.ProjectStatus;
 import com.lotdiz.projectservice.exception.CategoryNotfoundException;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.MakerEntityNotfoundException;
+import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.mapper.MakerMapper;
+import com.lotdiz.projectservice.mapper.ProductMapper;
 import com.lotdiz.projectservice.repository.CategoryRepository;
 import com.lotdiz.projectservice.repository.LotdealRepository;
 import com.lotdiz.projectservice.repository.MakerRepository;
+import com.lotdiz.projectservice.repository.ProductRepository;
 import com.lotdiz.projectservice.repository.ProjectImageRepository;
 import com.lotdiz.projectservice.repository.ProjectRepository;
 import java.time.Duration;
@@ -50,6 +56,8 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final FundingServiceClient fundingServiceClient;
+  private final ProductRepository productRepository;
+  private final ProductMapper productMapper;
   private final CircuitBreakerFactory circuitBreakerFactory;
   private final ProjectImageRepository projectImageRepository;
   private final LotdealRepository lotdealRepository;
@@ -83,6 +91,37 @@ public class ProjectService {
   public int updateProjectStatusDueDateAfter(ProjectStatus projectStatus, List<Long> projectIds) {
     return projectRepository.updateProjectStatusDueDateAfter(
         projectStatus, LocalDateTime.now(), projectIds);
+  }
+
+  public RegisteredProjectDetailForStatusResponseDto getStatusOfRegisteredProject(Long projectId) {
+    CircuitBreaker circuitebreaker = circuitBreakerFactory.create("circuiteBreaker");
+    // 펀딩률 가격 서포터 수 등 - funding feign client
+    FundingAchievementResultOfProjectDetailResponseDto fundingAchievementResultOfProjectDetail =
+        (FundingAchievementResultOfProjectDetailResponseDto)
+            circuitebreaker.run(
+                () ->
+                    fundingServiceClient.getFundingInformationOfProjectDetail(projectId).getData(),
+                trowable -> new FundingServiceClientOutOfServiceException());
+
+    // project name
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    // product name price current stock
+    List<Product> products = productRepository.findByProject(project);
+    List<ProductInformationForRegisteredProjectDto> productsDto =
+        productMapper.productEntityToProductInformationForRegisteredProjectToList(products);
+
+    return RegisteredProjectDetailForStatusResponseDto.builder()
+        .projectName(project.getProjectName())
+        .projectDueDate(project.getProjectDueDate())
+        .products(productsDto)
+        .fundingAchievementRate(fundingAchievementResultOfProjectDetail.getFundingAchievementRate())
+        .accumulatedFundingAmount(
+            fundingAchievementResultOfProjectDetail.getAccumulatedFundingAmount())
+        .numberOfBuyers(fundingAchievementResultOfProjectDetail.getNumberOfBuyers())
+        .remainDate(Duration.between(LocalDateTime.now(), project.getProjectDueDate()).toDays())
+        .build();
   }
 
   public ProjectRegisteredByMakerResponseDto getRegisteredProject(

@@ -240,4 +240,17 @@ public class ProjectRestController {
                 .data(projectService.getRegisteredProject(memberId, pageable))
                 .build());
   }
+
+  @GetMapping("/makers/projects/{projectId}/status")
+  public ResponseEntity<SuccessResponse<RegisteredProjectDetailForStatusResponseDto>>
+      getRegisteredProjectDetailStatus(@PathVariable Long projectId) {
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<RegisteredProjectDetailForStatusResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .detail(HttpStatus.OK.name())
+                .message("등록된 프로젝트 상세 조회")
+                .data(projectService.getStatusOfRegisteredProject(projectId))
+                .build());
+  }
 }

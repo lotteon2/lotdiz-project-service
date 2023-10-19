@@ -364,7 +364,10 @@ public class ProjectForSupporterService {
 
     return (FundingAchievementResultOfProjectDetailResponseDto)
         circuitBreaker.run(
-            () -> fundingServiceClient.getFundingOfProjectDetail(projectId, projectTargetAmount).getData(),
+            () ->
+                fundingServiceClient
+                    .getFundingOfProjectDetail(projectId, projectTargetAmount)
+                    .getData(),
             throwable -> new FundingServiceClientOutOfServiceException());
   }
 
