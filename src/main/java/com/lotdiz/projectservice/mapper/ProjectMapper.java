@@ -1,5 +1,6 @@
 package com.lotdiz.projectservice.mapper;
 
+import com.lotdiz.projectservice.dto.ProjectDto;
 import com.lotdiz.projectservice.dto.request.GetTargetAmountCheckExceedRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
 import com.lotdiz.projectservice.entity.Project;
@@ -13,13 +14,18 @@ import org.mapstruct.Named;
 public interface ProjectMapper {
 
   @Named("PIFATARD")
-  @Mapping(target = "memberId", ignore = true)
   ProjectInformationForAchievedTargetAmountRequestDto
       getProjectInformationForAchievedTargetAmountRequestDto(Project project);
 
   @IterableMapping(qualifiedByName = "PIFATARD")
   List<ProjectInformationForAchievedTargetAmountRequestDto>
       getListOfProjectInformationForAchievedTargetAmountRequestDto(List<Project> projects);
+
+  @Named("PFRP")
+  ProjectDto getProjectDtoForRegisteredProject(Project project);
+
+  @IterableMapping(qualifiedByName = "PFRP")
+  List<ProjectDto> getProjectDtoForRegisteredProjectList(List<Project> projects);
 
   @Named("TACERD")
   @Mapping(target = "makerMemberId", source = "maker.memberId")
