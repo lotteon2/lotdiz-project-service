@@ -3,6 +3,9 @@ package com.lotdiz.projectservice.client;
 import com.lotdiz.projectservice.dto.request.FundingAchievementResultOfProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.GetTargetAmountCheckExceedRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
+import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
+import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
+import com.lotdiz.projectservice.dto.response.FundingAchievementResultMapResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectResponseDto;
 import com.lotdiz.projectservice.dto.response.GetTargetAmountCheckExceedResponseDto;
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 @FeignClient(name = "fundingServiceClient", url = "${endpoint.funding-service}")
 public interface FundingServiceClient {
 
@@ -26,7 +31,7 @@ public interface FundingServiceClient {
 
   @GetMapping("/projects/{projectId}/achievement")
   SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto> getFundingOfProjectDetail(
-      @PathVariable Long projectId);
+      @PathVariable Long projectId, @RequestParam Long projectTargetAmount);
 
   @PostMapping("/fundings/check-target-amount-exceed")
   SuccessResponse<List<GetTargetAmountCheckExceedResponseDto>> getTargetAmountCheckExceed(
@@ -42,4 +47,12 @@ public interface FundingServiceClient {
   @GetMapping("/fundings/{projectId}/registered-project-detail")
   SuccessResponse<MemberInformationOfFundingResponseDto> getFundingList(
       @PathVariable Long projectId);
+
+  @PostMapping("/fundings/registered-projects-check")
+  SuccessResponse<FundingAchievementResultMapResponseDto> getRegisteredProject(
+      @RequestBody ProjectAmountWithIdRequestDto projectAmountWithIdRequestDto);
+
+  @GetMapping("/projects/{projectId}/achievement-information")
+  SuccessResponse<FundingAchievementResultOfProjectDetailResponseDto>
+      getFundingInformationOfProjectDetail(@PathVariable Long projectId);
 }

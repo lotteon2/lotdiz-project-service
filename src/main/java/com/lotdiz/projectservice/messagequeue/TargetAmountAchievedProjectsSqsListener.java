@@ -41,6 +41,7 @@ public class TargetAmountAchievedProjectsSqsListener {
   public void achievementOfTargetFundingAmountSqsListener(
       @Payload String message, @Headers Map<String, String> headers, Acknowledgment ack)
       throws JsonProcessingException {
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
     TargetAmountAchievedProjectsMessageDto triggerMessage =
         objectMapper.readValue(message, TargetAmountAchievedProjectsMessageDto.class);
     // event bridge 에서 받아온 트리거 메세지
@@ -52,13 +53,14 @@ public class TargetAmountAchievedProjectsSqsListener {
 
       // 목표 펀딩 금액 달성 프로젝트 id, 해당 프로젝트에 참여한 서포터 id, 프로젝트 메이커 id 받아오기
       TargetAmountAchievedProjectsDto targetAmountAchievedProjects =
-          fundingServiceClient.getTargetAmountAchievedProjects(projectInformation).getData();
-      CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
-      circuitBreaker.run(
-          () -> fundingServiceClient.getTargetAmountAchievedProjects(projectInformation).getData(),
-          throwable -> new FundingServiceClientOutOfServiceException());
+          (TargetAmountAchievedProjectsDto)
+              circuitBreaker.run(
+                  () ->
+                      fundingServiceClient
+                          .getTargetAmountAchievedProjects(projectInformation)
+                          .getData(),
+                  throwable -> new FundingServiceClientOutOfServiceException());
       ack.acknowledge();
-
       // sqs 에 목표 펀딩 금액 달성 알림을 위한 데이터 전송
       sendTargetAmountAchievedProjects.sendTargetAmountAchievedProjectsMessageRequest(
           targetAmountAchievedProjects);
