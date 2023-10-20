@@ -1,6 +1,7 @@
 package com.lotdiz.projectservice.mapper;
 
 import com.lotdiz.projectservice.dto.ProjectDto;
+import com.lotdiz.projectservice.dto.request.CreateProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.GetTargetAmountCheckExceedRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectInformationForAchievedTargetAmountRequestDto;
 import com.lotdiz.projectservice.entity.Project;
@@ -21,6 +22,7 @@ public interface ProjectMapper {
   List<ProjectInformationForAchievedTargetAmountRequestDto>
       getListOfProjectInformationForAchievedTargetAmountRequestDto(List<Project> projects);
 
+  CreateProjectRequestDto projectEntityToCreateProjectRequestDto(Project project);
   @Named("PFRP")
   ProjectDto getProjectDtoForRegisteredProject(Project project);
 

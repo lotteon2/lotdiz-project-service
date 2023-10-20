@@ -41,6 +41,9 @@ import com.lotdiz.projectservice.exception.MakerEntityNotfoundException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.mapper.MakerMapper;
 import com.lotdiz.projectservice.mapper.ProductMapper;
+import com.lotdiz.projectservice.mapper.ProjectMapper;
+import com.lotdiz.projectservice.messagequeue.kafka.MakerProducer;
+import com.lotdiz.projectservice.messagequeue.kafka.ProjectProducer;
 import com.lotdiz.projectservice.repository.CategoryRepository;
 import com.lotdiz.projectservice.repository.LotdealRepository;
 import com.lotdiz.projectservice.repository.MakerRepository;
@@ -86,6 +89,9 @@ public class ProjectService {
   private final ProjectImageRepository projectImageRepository;
   private final LotdealRepository lotdealRepository;
   private final MakerMapper makerMapper;
+  private final MakerProducer makerProducer;
+  private final ProjectProducer projectProducer;
+  private final ProjectMapper projectMapper;
 
   private static ProjectImage getProjectImage(Project project, String url, boolean isThumbnail) {
     return ProjectImage.builder()
@@ -346,5 +352,8 @@ public class ProjectService {
     }
     // 저장
     Maker savedMaker = makerRepository.save(maker);
+    makerProducer.sendCreateMaker(makerMapper.makerEntityToCreateMakerRequestDto(savedMaker));
+    projectProducer.sendCreateProject(
+        projectMapper.projectEntityToCreateProjectRequestDto(project));
   }
 }
