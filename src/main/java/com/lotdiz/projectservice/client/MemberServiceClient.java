@@ -1,6 +1,7 @@
 package com.lotdiz.projectservice.client;
 
 import com.lotdiz.projectservice.dto.response.MemberInfoResponseDto;
+import com.lotdiz.projectservice.dto.response.MemberNameResponseDto;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
 import java.util.Map;
@@ -20,4 +21,7 @@ public interface MemberServiceClient {
   @GetMapping("/members")
   SuccessResponse<Map<String, MemberInfoResponseDto>> getMemberInfo(
       @RequestParam List<Long> memberIds);
+
+  @PostMapping("/members/name")
+  SuccessResponse<MemberNameResponseDto> getMemberName(@RequestBody List<Long> memberId);
 }

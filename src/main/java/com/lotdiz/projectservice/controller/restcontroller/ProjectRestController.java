@@ -253,4 +253,19 @@ public class ProjectRestController {
                 .data(projectService.getStatusOfRegisteredProject(projectId))
                 .build());
   }
+
+  @GetMapping("/makers/projects/{projectId}")
+  public ResponseEntity<SuccessResponse<RegisteredProjectFundingListResponseDto>>
+      getRegisteredProjectFundingListResponseDto(@PathVariable Long projectId) {
+    RegisteredProjectFundingListResponseDto responseDto =
+        projectService.getFundingListOfRegisteredProject(projectId);
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<RegisteredProjectFundingListResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("등록된 프로젝트 상세 조회")
+                .data(responseDto)
+                .build());
+  }
 }
