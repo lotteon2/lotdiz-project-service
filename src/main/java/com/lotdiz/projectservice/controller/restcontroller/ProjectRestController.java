@@ -30,8 +30,8 @@ public class ProjectRestController {
   private final ProjectService projectService;
 
   @GetMapping("/projects")
-  public ResponseEntity<SuccessResponse<Map<String, List<BestLotdPlusResponseDto>>>> getLotdplusProject(
-      @RequestHeader(required = false) Long memberId) {
+  public ResponseEntity<SuccessResponse<Map<String, List<BestLotdPlusResponseDto>>>>
+      getLotdplusProject(@RequestHeader(required = false) Long memberId) {
 
     List<BestLotdPlusResponseDto> lotdPlusResponseDtoList =
         projectForSupporterService.getLotdPlusProject(memberId);
@@ -216,7 +216,41 @@ public class ProjectRestController {
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .message(HttpStatus.OK.name())
                 .detail("기획전 조회 성공")
-                .data(Map.of("special-exhibition", specialExhibitionResponseDtoList))
+                .data(Map.of("specialExhibitions", specialExhibitionResponseDtoList))
+                .build());
+  }
+
+  @GetMapping("/makers/projects")
+  public ResponseEntity<SuccessResponse<ProjectRegisteredByMakerResponseDto>>
+      getProjectListRegisteredByMaker(
+          @RequestHeader Long memberId,
+          @PageableDefault(
+                  page = 0,
+                  size = 20,
+                  sort = {"createdAt"},
+                  direction = Sort.Direction.DESC)
+              Pageable pageable) {
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<ProjectRegisteredByMakerResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .detail("등록된 프로젝트 조회")
+                .message(HttpStatus.OK.name())
+                .data(projectService.getRegisteredProject(memberId, pageable))
+                .build());
+  }
+
+  @GetMapping("/makers/projects/{projectId}/status")
+  public ResponseEntity<SuccessResponse<RegisteredProjectDetailForStatusResponseDto>>
+      getRegisteredProjectDetailStatus(@PathVariable Long projectId) {
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<RegisteredProjectDetailForStatusResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .detail(HttpStatus.OK.name())
+                .message("등록된 프로젝트 상세 조회")
+                .data(projectService.getStatusOfRegisteredProject(projectId))
                 .build());
   }
 }

@@ -1,5 +1,6 @@
-package com.lotdiz.projectservice.dto.request;
+package com.lotdiz.projectservice.dto;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,11 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProjectInformationForAchievedTargetAmountRequestDto {
-
-  private Long projectId;
+@AllArgsConstructor
+public class TargetAmountAchievedDto {
   private String projectName;
-  private Long projectTargetAmount;
+  private List<Long> memberIds;
 }
