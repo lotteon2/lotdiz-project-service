@@ -8,6 +8,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ProjectRegisteredByMakerResponseDto {
-    private final List<ProjectDto> projects;
-
+  private final List<ProjectDto> projects;
+  private final int totalPage;
 }
