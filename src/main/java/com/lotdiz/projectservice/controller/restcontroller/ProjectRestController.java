@@ -135,9 +135,9 @@ public class ProjectRestController {
                 .detail("지지서명 조회 성공")
                 .data(
                     Map.of(
-                        "totalPage",
+                        "totalPages",
                         supportSignatureResponseDtoList.getTotalPages(),
-                        "supportSignature",
+                        "supportSignatures",
                         supportSignatureResponseDtoList.getDataList()))
                 .build());
   }
