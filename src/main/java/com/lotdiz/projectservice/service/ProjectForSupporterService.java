@@ -49,7 +49,7 @@ public class ProjectForSupporterService {
   private final CircuitBreakerFactory circuitBreakerFactory;
 
   @Transactional(readOnly = true)
-  public List<BestLotdPlusResponseDto> getLotdPlusProject(Long memberId) {
+  public PagedDataResponseDto<Object> getLotdPlusProject(Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
 
@@ -91,11 +91,14 @@ public class ProjectForSupporterService {
       bestLotdPlusResponseDtos.add(bestLotdPlusResponseDto);
     }
 
-    return bestLotdPlusResponseDtos;
+    return PagedDataResponseDto.builder()
+        .totalPages(bestlotdPlusList.getTotalPages())
+        .dataList(bestLotdPlusResponseDtos)
+        .build();
   }
 
   @Transactional(readOnly = true)
-  public List<ProjectByCategoryResponseDto> getProjectsByCategory(
+  public PagedDataResponseDto<Object> getProjectsByCategory(
       String categoryName, Pageable pageable, Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
@@ -138,7 +141,10 @@ public class ProjectForSupporterService {
 
       projectByCategoryResponseDtoList.add(projectByCategoryResponseDto);
     }
-    return projectByCategoryResponseDtoList;
+    return PagedDataResponseDto.builder()
+        .totalPages(projects.getTotalPages())
+        .dataList(projectByCategoryResponseDtoList)
+        .build();
   }
 
   @Transactional(readOnly = true)
@@ -201,7 +207,7 @@ public class ProjectForSupporterService {
   }
 
   @Transactional(readOnly = true)
-  public List<SupportSignatureResponseDto> getSupportSignature(Long projectId, Pageable pageable) {
+  public PagedDataResponseDto<Object> getSupportSignature(Long projectId, Pageable pageable) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
     List<SupportSignatureResponseDto> supportSignatureResponseDtoList = new ArrayList<>();
@@ -226,7 +232,10 @@ public class ProjectForSupporterService {
               s, memberInfoResponseDtos.get(Long.toString(s.getMemberId()))));
     }
 
-    return supportSignatureResponseDtoList;
+    return PagedDataResponseDto.builder()
+        .totalPages(supportSignatureList.getTotalPages())
+        .dataList(supportSignatureResponseDtoList)
+        .build();
   }
 
   @Transactional
@@ -247,7 +256,7 @@ public class ProjectForSupporterService {
   }
 
   @Transactional(readOnly = true)
-  public List<LotdealProjectResponseDto> getLotdeal(Pageable pageable, Long memberId) {
+  public PagedDataResponseDto<Object> getLotdeal(Pageable pageable, Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
 
@@ -289,7 +298,10 @@ public class ProjectForSupporterService {
       lotdealProjectResponseDtoList.add(lotdealProjectResponseDto);
     }
 
-    return lotdealProjectResponseDtoList;
+    return PagedDataResponseDto.builder()
+        .totalPages(lotdealProjects.getTotalPages())
+        .dataList(lotdealProjectResponseDtoList)
+        .build();
   }
 
   @Transactional(readOnly = true)
@@ -298,7 +310,7 @@ public class ProjectForSupporterService {
   }
 
   @Transactional(readOnly = true)
-  public List<SpecialExhibitionResponseDto> getSpecialExhibition(
+  public PagedDataResponseDto<Object> getSpecialExhibition(
       Pageable pageable, String tag, Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
@@ -341,7 +353,10 @@ public class ProjectForSupporterService {
       specialExhibitionResponseDtoList.add(specialExhibitionResponseDto);
     }
 
-    return specialExhibitionResponseDtoList;
+    return PagedDataResponseDto.builder()
+        .totalPages(projects.getTotalPages())
+        .dataList(specialExhibitionResponseDtoList)
+        .build();
   }
 
   // feign client
@@ -364,7 +379,10 @@ public class ProjectForSupporterService {
 
     return (FundingAchievementResultOfProjectDetailResponseDto)
         circuitBreaker.run(
-            () -> fundingServiceClient.getFundingOfProjectDetail(projectId, projectTargetAmount).getData(),
+            () ->
+                fundingServiceClient
+                    .getFundingOfProjectDetail(projectId, projectTargetAmount)
+                    .getData(),
             throwable -> new FundingServiceClientOutOfServiceException());
   }
 
