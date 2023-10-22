@@ -2,6 +2,7 @@ package com.lotdiz.projectservice.repository;
 
 import com.lotdiz.projectservice.dto.response.GetProjectInfoForLikesResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectAndMakerInfoDto;
+import com.lotdiz.projectservice.entity.Maker;
 import com.lotdiz.projectservice.entity.Project;
 import com.lotdiz.projectservice.entity.ProjectStatus;
 import java.time.LocalDateTime;
@@ -14,14 +15,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-
   @Query(
       "select p from Project p inner join p.category c where c.categoryName =:categoryName "
           + "and p.projectIsAuthorized  =:projectIsAuthorized")
   Page<Project> findByCategoryAndProjectIsAuthorized(
       String categoryName, Boolean projectIsAuthorized, Pageable pageable);
 
-  @Query("select p from Project p " + "join fetch p.maker m " + "where p.projectDueDate < :now")
+  @Query(
+      "select p from Project p "
+          + "join fetch p.maker m join fetch p.lotdeal l "
+          + "where p.projectDueDate < :now")
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
   @Query(
@@ -54,4 +57,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       @Param("projectStatus") ProjectStatus projectStatus,
       @Param("now") LocalDateTime now,
       @Param("projectIds") List<Long> projectIds);
+
+  @Query("select p from Project p where p.maker = :maker")
+  Page<Project> findByRegisteredProjects(@Param("maker") Maker maker, Pageable pageable);
 }
