@@ -184,17 +184,19 @@ public class ProjectService {
 
   public RegisteredProjectDetailForStatusResponseDto getStatusOfRegisteredProject(Long projectId) {
     CircuitBreaker circuitebreaker = circuitBreakerFactory.create("circuiteBreaker");
+    // project name
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
     // 펀딩률 가격 서포터 수 등 - funding feign client
     FundingAchievementResultOfProjectDetailResponseDto fundingAchievementResultOfProjectDetail =
         (FundingAchievementResultOfProjectDetailResponseDto)
             circuitebreaker.run(
                 () ->
-                    fundingServiceClient.getFundingInformationOfProjectDetail(projectId).getData(),
+                    fundingServiceClient
+                        .getFundingOfProjectDetail(projectId, project.getProjectTargetAmount())
+                        .getData(),
                 trowable -> new FundingServiceClientOutOfServiceException());
-
-    // project name
-    Project project =
-        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
 
     // product name price current stock
     List<Product> products = productRepository.findByProject(project);
