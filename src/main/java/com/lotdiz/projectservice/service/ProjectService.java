@@ -302,7 +302,10 @@ public class ProjectService {
                         .isAuthorized(project.getProjectIsAuthorized())
                         .build()));
 
-    return ProjectRegisteredByMakerResponseDto.builder().projects(projectDtoList).build();
+    return ProjectRegisteredByMakerResponseDto.builder()
+        .totalPage(registeredProjects.getTotalPages())
+        .projects(projectDtoList)
+        .build();
   }
 
   @Transactional
