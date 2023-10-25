@@ -38,15 +38,15 @@ spec:
               value: "11111111"
             - name: MYSQL_DATABASE
               value: delivery-service
-          volumeMounts:
-            - name: lotdiz-storage
-              mountPath: /var/lib/mysql
           resources:
             requests:
               memory: "2Gi"
+          volumeMounts:
+            - name: lotdiz-project-storage
+              mountPath: /var/lib/mysql
       volumes:
-        - name: lotdiz-storage
+        - name: lotdiz-project-storage
           persistentVolumeClaim:
-            claimName: efs-claim
+            claimName: project-efs-claim
       restartPolicy: Always
 
