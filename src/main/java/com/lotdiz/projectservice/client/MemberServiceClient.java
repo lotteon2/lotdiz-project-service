@@ -17,7 +17,11 @@ public interface MemberServiceClient {
       @RequestHeader Long memberId, @RequestParam List<Long> projects);
 
   @GetMapping("/projects/{projectId}/likes")
-  SuccessResponse<MemberLikesInfoResponseDto> getLikes(@RequestHeader Long memberId, @PathVariable Long projectId);
+  SuccessResponse<MemberLikesInfoResponseDto> getLikes(@PathVariable Long projectId);
+
+  @GetMapping("/projects/{projectId}/likes")
+  SuccessResponse<MemberLikesInfoResponseDto> getLikesWithMemberId(
+      @RequestHeader Long memberId, @PathVariable Long projectId);
 
   @GetMapping("/members")
   SuccessResponse<Map<String, MemberInfoResponseDto>> getMemberInfo(

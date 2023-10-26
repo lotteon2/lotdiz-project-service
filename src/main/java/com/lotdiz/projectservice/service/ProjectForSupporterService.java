@@ -401,13 +401,25 @@ public class ProjectForSupporterService {
     return isLikeMap;
   }
 
-  public MemberLikesInfoResponseDto getLikeInfoClient(CircuitBreaker circuitBreaker, Long projectId, Long memberId) {
+  public MemberLikesInfoResponseDto getLikeInfoClient(
+      CircuitBreaker circuitBreaker, Long projectId, Long memberId) {
+    MemberLikesInfoResponseDto memberLikesInfoResponseDto = new MemberLikesInfoResponseDto();
 
-    return (MemberLikesInfoResponseDto)
-        circuitBreaker.run(
-            () ->
-                memberServiceClient.getLikes(projectId, memberId).getData(),
-            throwable -> new MemberServiceClientOutOfServiceException());
+    if (memberId != null) {
+      memberLikesInfoResponseDto =
+          (MemberLikesInfoResponseDto)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getLikesWithMemberId(projectId, memberId).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
+
+    } else {
+      memberLikesInfoResponseDto =
+          (MemberLikesInfoResponseDto)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getLikes(projectId).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
+    }
+    return memberLikesInfoResponseDto;
   }
 
   public Map<String, MemberInfoResponseDto> getMemberInfoClient(
