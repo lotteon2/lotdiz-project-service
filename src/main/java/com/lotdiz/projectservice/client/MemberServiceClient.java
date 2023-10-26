@@ -1,6 +1,7 @@
 package com.lotdiz.projectservice.client;
 
 import com.lotdiz.projectservice.dto.response.MemberInfoResponseDto;
+import com.lotdiz.projectservice.dto.response.MemberLikesInfoResponseDto;
 import com.lotdiz.projectservice.dto.response.MemberNameResponseDto;
 import com.lotdiz.projectservice.utils.SuccessResponse;
 import java.util.List;
@@ -15,8 +16,8 @@ public interface MemberServiceClient {
   SuccessResponse<Map<String, Boolean>> getIsLike(
       @RequestHeader Long memberId, @RequestParam List<Long> projects);
 
-  @GetMapping("/projects/{projectId}/like-count")
-  SuccessResponse<Map<String, Long>> getLikeCount(@PathVariable Long projectId);
+  @GetMapping("/projects/{projectId}/likes")
+  SuccessResponse<MemberLikesInfoResponseDto> getLikes(@RequestHeader Long memberId, @PathVariable Long projectId);
 
   @GetMapping("/members")
   SuccessResponse<Map<String, MemberInfoResponseDto>> getMemberInfo(
