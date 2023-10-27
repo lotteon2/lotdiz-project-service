@@ -359,6 +359,14 @@ public class ProjectForSupporterService {
         .build();
   }
 
+  @Transactional(readOnly = true)
+  public Boolean getIsSupportSignature(Long memberId, Long projectId) {
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    return supportSignatureRepository.existsByProjectAndMemberId(project, memberId);
+  }
+
   // feign client
   public HashMap<String, FundingAchievementResultOfProjectResponseDto> getFundingProjectClient(
       CircuitBreaker circuitBreaker,
