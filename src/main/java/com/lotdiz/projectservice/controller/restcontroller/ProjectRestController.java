@@ -81,10 +81,10 @@ public class ProjectRestController {
 
   @GetMapping("/projects/{projectId}")
   public ResponseEntity<SuccessResponse<Map<String, ProjectDetailResponseDto>>> getProjectDetails(
-      @PathVariable Long projectId) {
+      @RequestHeader(required = false) Long memberId, @PathVariable Long projectId) {
 
     ProjectDetailResponseDto projectDetailResponseDto =
-        projectForSupporterService.getProjectDetails(projectId);
+        projectForSupporterService.getProjectDetails(projectId, memberId);
 
     return ResponseEntity.ok()
         .body(

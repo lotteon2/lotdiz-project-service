@@ -148,7 +148,7 @@ public class ProjectForSupporterService {
   }
 
   @Transactional(readOnly = true)
-  public ProjectDetailResponseDto getProjectDetails(Long projectId) {
+  public ProjectDetailResponseDto getProjectDetails(Long projectId, Long memberId) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
 
@@ -164,7 +164,7 @@ public class ProjectForSupporterService {
 
     Long numberOfSupporter = supportSignatureRepository.countByProject(project);
 
-    Long likeCount = getLikeCountClient(circuitBreaker, projectId);
+    MemberLikesInfoResponseDto likesInfo = getLikeInfoClient(circuitBreaker, projectId, memberId);
 
     FundingAchievementResultOfProjectDetailResponseDto
         fundingAchievementResultOfProjectDetailResponseDto =
@@ -178,7 +178,7 @@ public class ProjectForSupporterService {
             project,
             projectImageDtoList,
             productDtoList,
-            likeCount,
+            likesInfo,
             fundingAchievementResultOfProjectDetailResponseDto,
             numberOfSupporter,
             lotdeal);
@@ -401,13 +401,25 @@ public class ProjectForSupporterService {
     return isLikeMap;
   }
 
-  public Long getLikeCountClient(CircuitBreaker circuitBreaker, Long projectId) {
+  public MemberLikesInfoResponseDto getLikeInfoClient(
+      CircuitBreaker circuitBreaker, Long projectId, Long memberId) {
+    MemberLikesInfoResponseDto memberLikesInfoResponseDto = new MemberLikesInfoResponseDto();
 
-    return (Long)
-        circuitBreaker.run(
-            () ->
-                memberServiceClient.getLikeCount(projectId).getData().get(Long.toString(projectId)),
-            throwable -> new MemberServiceClientOutOfServiceException());
+    if (memberId != null) {
+      memberLikesInfoResponseDto =
+          (MemberLikesInfoResponseDto)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getLikesWithMemberId(projectId, memberId).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
+
+    } else {
+      memberLikesInfoResponseDto =
+          (MemberLikesInfoResponseDto)
+              circuitBreaker.run(
+                  () -> memberServiceClient.getLikes(projectId).getData(),
+                  throwable -> new MemberServiceClientOutOfServiceException());
+    }
+    return memberLikesInfoResponseDto;
   }
 
   public Map<String, MemberInfoResponseDto> getMemberInfoClient(
