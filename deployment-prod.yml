@@ -40,7 +40,7 @@ spec:
               value: project-service
           resources:
             requests:
-              memory: "2Gi"
+              memory: "1Gi"
           volumeMounts:
             - name: lotdiz-project-storage
               mountPath: /var/lib/mysql
