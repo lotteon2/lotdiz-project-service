@@ -4,8 +4,6 @@ import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDt
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
-import com.lotdiz.projectservice.entity.Project;
-import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
 import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
@@ -291,22 +289,4 @@ public class ProjectRestController {
                 .data(responseDto)
                 .build());
   }
-
-  @GetMapping("/projects/{projectId}/support-signature/status")
-  public ResponseEntity<SuccessResponse<Map<String, Boolean>>>getSupportSignatureStatus(@RequestHeader Long memberId, @PathVariable Long projectId) {
-
-    Boolean isSupportSignature = projectForSupporterService.getIsSupportSignature(memberId, projectId);
-
-    return ResponseEntity.ok()
-            .body(
-                    SuccessResponse.<Map<String, Boolean>>builder()
-                            .code(String.valueOf(HttpStatus.OK.value()))
-                            .message(HttpStatus.OK.name())
-                            .detail("해당 멤버의 프로젝트 지지서명 유무 조회")
-                            .data(Map.of("support-signature-status", isSupportSignature)).build());
-  }
-
 }
-
-
-
