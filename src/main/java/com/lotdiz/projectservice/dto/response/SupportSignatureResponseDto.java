@@ -19,8 +19,9 @@ public class SupportSignatureResponseDto {
   private String supporterImageUrl;
   private String supportSignatureContent;
   private LocalDateTime createdAt;
+  private Boolean isSignatureOfLoggedUser;
 
-  public static SupportSignatureResponseDto toDto(SupportSignature supportSignature, MemberInfoResponseDto memberInfoResponseDto) {
+  public static SupportSignatureResponseDto toDto(SupportSignature supportSignature, MemberInfoResponseDto memberInfoResponseDto, Long memberId) {
 
     return SupportSignatureResponseDto.builder()
             .supportSignatureId(supportSignature.getSupportSignatureId())
@@ -28,6 +29,7 @@ public class SupportSignatureResponseDto {
             .supporterImageUrl(memberInfoResponseDto.getMemberProfileImageUrl())
             .supportSignatureContent(supportSignature.getSupportSignatureContent())
             .createdAt(supportSignature.getCreatedAt())
+            .isSignatureOfLoggedUser(supportSignature.getMemberId() == memberId)
             .build();
   }
 }
