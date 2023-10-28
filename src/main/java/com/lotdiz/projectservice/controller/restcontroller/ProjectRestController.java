@@ -116,7 +116,7 @@ public class ProjectRestController {
 
   @GetMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse<Map<String, Object>>> getSupportSignature(
-      @PathVariable Long projectId,
+      @PathVariable Long projectId, @RequestHeader(required = false) Long memberId,
       @PageableDefault(
               page = 0,
               size = 20,
@@ -125,7 +125,7 @@ public class ProjectRestController {
           Pageable pageable) {
 
     PagedDataResponseDto<Object> supportSignatureResponseDtoList =
-        projectForSupporterService.getSupportSignature(projectId, pageable);
+        projectForSupporterService.getSupportSignature(projectId, memberId, pageable);
 
     return ResponseEntity.ok()
         .body(
