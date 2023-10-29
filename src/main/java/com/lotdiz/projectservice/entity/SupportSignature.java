@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-@Setter
 @Entity
 @Table(name = "support_signature")
 public class SupportSignature extends BaseEntity {
@@ -27,4 +26,8 @@ public class SupportSignature extends BaseEntity {
 
   @Column(name = "support_signature_content", nullable = false, length = 500)
   private String supportSignatureContent;
+
+  public void setSupportSignatureContent(String supportSignatureContent) {
+    this.supportSignatureContent = supportSignatureContent;
+  }
 }

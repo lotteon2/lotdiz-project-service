@@ -201,13 +201,13 @@ public class ProjectForSupporterService {
             .build();
 
     if (supportSignatureRepository.existsByProjectAndMemberId(project, memberId)) {
-      throw new DuplicateKeyException("지지서명에 중복된 데이터가 있습니다.");
+      throw new DuplicateKeyException("이미 작성된 지지서명이 존재합니다.");
     }
     supportSignatureRepository.save(supportSignature);
   }
 
   @Transactional(readOnly = true)
-  public PagedDataResponseDto<Object> getSupportSignature(Long projectId, Pageable pageable) {
+  public PagedDataResponseDto<Object> getSupportSignature(Long projectId, Long memberId, Pageable pageable) {
 
     CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
     List<SupportSignatureResponseDto> supportSignatureResponseDtoList = new ArrayList<>();
@@ -229,7 +229,7 @@ public class ProjectForSupporterService {
     for (SupportSignature s : supportSignatureList) {
       supportSignatureResponseDtoList.add(
           SupportSignatureResponseDto.toDto(
-              s, memberInfoResponseDtos.get(Long.toString(s.getMemberId()))));
+              s, memberInfoResponseDtos.get(Long.toString(s.getMemberId())), memberId));
     }
 
     return PagedDataResponseDto.builder()
@@ -357,6 +357,14 @@ public class ProjectForSupporterService {
         .totalPages(projects.getTotalPages())
         .dataList(specialExhibitionResponseDtoList)
         .build();
+  }
+
+  @Transactional(readOnly = true)
+  public Boolean getIsSupportSignature(Long memberId, Long projectId) {
+    Project project =
+        projectRepository.findById(projectId).orElseThrow(ProjectEntityNotFoundException::new);
+
+    return supportSignatureRepository.existsByProjectAndMemberId(project, memberId);
   }
 
   // feign client

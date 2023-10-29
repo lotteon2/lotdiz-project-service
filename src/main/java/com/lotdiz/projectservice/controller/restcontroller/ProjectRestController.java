@@ -116,7 +116,7 @@ public class ProjectRestController {
 
   @GetMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse<Map<String, Object>>> getSupportSignature(
-      @PathVariable Long projectId,
+      @PathVariable Long projectId, @RequestHeader(required = false) Long memberId,
       @PageableDefault(
               page = 0,
               size = 20,
@@ -125,7 +125,7 @@ public class ProjectRestController {
           Pageable pageable) {
 
     PagedDataResponseDto<Object> supportSignatureResponseDtoList =
-        projectForSupporterService.getSupportSignature(projectId, pageable);
+        projectForSupporterService.getSupportSignature(projectId, memberId, pageable);
 
     return ResponseEntity.ok()
         .body(
@@ -287,6 +287,23 @@ public class ProjectRestController {
                 .message(HttpStatus.OK.name())
                 .detail("등록된 프로젝트 상세 조회")
                 .data(responseDto)
+                .build());
+  }
+
+  @GetMapping("/projects/{projectId}/support-signature/status")
+  public ResponseEntity<SuccessResponse<Map<String, Boolean>>> getSupportSignatureStatus(
+      @RequestHeader Long memberId, @PathVariable Long projectId) {
+
+    Boolean isSupportSignature =
+        projectForSupporterService.getIsSupportSignature(memberId, projectId);
+
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<Map<String, Boolean>>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .message(HttpStatus.OK.name())
+                .detail("해당 멤버의 프로젝트 지지서명 유무 조회")
+                .data(Map.of("support-signature-status", isSupportSignature))
                 .build());
   }
 }
