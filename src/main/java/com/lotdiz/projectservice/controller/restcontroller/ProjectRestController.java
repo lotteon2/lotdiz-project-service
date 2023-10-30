@@ -1,9 +1,11 @@
 package com.lotdiz.projectservice.controller.restcontroller;
 
+import com.lotdiz.projectservice.dto.request.ImageRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.request.SupportSignatureRequestDto;
 import com.lotdiz.projectservice.dto.response.*;
 import com.lotdiz.projectservice.dto.response.ProjectDetailResponseDto;
+import com.lotdiz.projectservice.service.PresignedUrlService;
 import com.lotdiz.projectservice.service.ProjectForSupporterService;
 import com.lotdiz.projectservice.service.ProjectService;
 import com.lotdiz.projectservice.utils.SuccessResponse;
@@ -27,6 +29,7 @@ public class ProjectRestController {
 
   private final ProjectForSupporterService projectForSupporterService;
   private final ProjectService projectService;
+  private final PresignedUrlService presignedUrlService;
 
   @GetMapping("/projects")
   public ResponseEntity<SuccessResponse<Map<String, Object>>> getLotdplusProject(
@@ -116,7 +119,8 @@ public class ProjectRestController {
 
   @GetMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse<Map<String, Object>>> getSupportSignature(
-      @PathVariable Long projectId, @RequestHeader(required = false) Long memberId,
+      @PathVariable Long projectId,
+      @RequestHeader(required = false) Long memberId,
       @PageableDefault(
               page = 0,
               size = 20,
@@ -304,6 +308,23 @@ public class ProjectRestController {
                 .message(HttpStatus.OK.name())
                 .detail("해당 멤버의 프로젝트 지지서명 유무 조회")
                 .data(Map.of("support-signature-status", isSupportSignature))
+                .build());
+  }
+
+  @PostMapping("/presigned-url")
+  public ResponseEntity<SuccessResponse<PresignedUrlResponseDto>> createPresignedUrl(
+      @RequestBody ImageRequestDto imageRequestDto) {
+    return ResponseEntity.ok()
+        .body(
+            SuccessResponse.<PresignedUrlResponseDto>builder()
+                .code(String.valueOf(HttpStatus.OK.value()))
+                .data(
+                    PresignedUrlResponseDto.builder()
+                        .presignedUrl(
+                            presignedUrlService.getPresignedUrl(
+                                "project-img", imageRequestDto.getImageName()))
+                        .build())
+                .message("presigned url")
                 .build());
   }
 }
