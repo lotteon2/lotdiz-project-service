@@ -28,7 +28,7 @@ public class ProjectDetailResponseDto {
   private Long numberOfBuyers;
   private Long numberOfSupporter;
   private Long numberOfLikes;
-  private Boolean isLike;
+  private Boolean isLikes;
   private Long fundingAchievementRate;
   private Long accumulatedFundingAmount;
   private String projectStoryImageUrl;
@@ -64,7 +64,7 @@ public class ProjectDetailResponseDto {
         .numberOfBuyers(fundingAchievementResultOfProjectDetailResponseDto.getNumberOfBuyers())
         .numberOfLikes(likesInfo.getLikeCount())
         .numberOfSupporter(numberOfSupporter)
-        .isLike(likesInfo.getIsLikes())
+        .isLikes(likesInfo.getIsLikes())
         .fundingAchievementRate(
             fundingAchievementResultOfProjectDetailResponseDto.getFundingAchievementRate())
         .accumulatedFundingAmount(
