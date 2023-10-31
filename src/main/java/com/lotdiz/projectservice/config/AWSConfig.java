@@ -56,6 +56,7 @@ public class AWSConfig {
     return new NotificationMessagingTemplate(amazonSNSAsync());
   }
 
+  @Primary
   @Bean
   public AmazonS3 amazonS3Client() {
     return AmazonS3ClientBuilder.standard()
