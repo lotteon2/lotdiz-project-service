@@ -28,7 +28,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
   List<Project> findAllByProjectWithMakerDueDateAfter(LocalDateTime now);
 
   @Query(
-      "select new com.lotdiz.projectservice.dto.response.GetProjectInfoForLikesResponseDto(p.projectName, i.projectImageUrl, m.makerName, p.projectDueDate) "
+      "select new com.lotdiz.projectservice.dto.response.GetProjectInfoForLikesResponseDto(p.projectId, p.projectName, i.projectImageUrl, m.makerName, p.projectDueDate) "
           + "from Project p join fetch Maker m on p.maker.makerId = m.makerId join fetch ProjectImage i on p.projectId = i.project.projectId "
           + "and i.projectImageIsThumbnail = true where p.projectId in :projectIds")
   List<GetProjectInfoForLikesResponseDto> findProjectInfoForLikes(List<Long> projectIds);
