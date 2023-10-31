@@ -98,7 +98,7 @@ public class ProjectRestController {
 
   @PostMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> createSupportSignature(
-      @RequestHeader(required = false) Long memberId,
+      @RequestHeader Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 
@@ -144,7 +144,7 @@ public class ProjectRestController {
 
   @PutMapping("/projects/{projectId}/support-signature")
   public ResponseEntity<SuccessResponse> modifySupportSignature(
-      @RequestHeader(required = false) Long memberId,
+      @RequestHeader Long memberId,
       @PathVariable Long projectId,
       @Valid @RequestBody SupportSignatureRequestDto supportSignatureContents) {
 

@@ -9,13 +9,15 @@ import lombok.NoArgsConstructor;
 @Getter
 public class GetProjectInfoForLikesResponseDto {
 
+  private Long projectId;
   private String projectName;
   private String projectThumbnailImageUrl;
   private String makerName;
   private Long remainingDays;
 
-  public GetProjectInfoForLikesResponseDto(
+  public GetProjectInfoForLikesResponseDto(Long projectId,
       String projectName, String projectThumbnailImageUrl, String makerName, LocalDateTime projectDueDate) {
+    this.projectId = projectId;
     this.projectName = projectName;
     this.projectThumbnailImageUrl = projectThumbnailImageUrl;
     this.makerName = makerName;
