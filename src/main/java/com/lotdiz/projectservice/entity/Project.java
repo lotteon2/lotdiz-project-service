@@ -80,6 +80,14 @@ public class Project extends BaseEntity {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private Lotdeal lotdeal;
 
+  public void setProjectStatus(ProjectStatus projectStatus) {
+    this.projectStatus = projectStatus;
+  }
+
+  public void setProjectIsAuthorized(Boolean projectIsAuthorized) {
+    this.projectIsAuthorized = projectIsAuthorized;
+  }
+
   public void setLotdeal(Lotdeal lotdeal) {
     this.lotdeal = lotdeal;
   }
