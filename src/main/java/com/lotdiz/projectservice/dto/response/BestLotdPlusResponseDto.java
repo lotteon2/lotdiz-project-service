@@ -23,12 +23,12 @@ public class BestLotdPlusResponseDto {
   private Long fundingAchievementRate;
   private Long accumulatedFundingAmount;
   private String projectStatus;
-  private Boolean isLike;
+  private Boolean isLikes;
 
   public static BestLotdPlusResponseDto toDto(
           Project project,
           String projectThumbnailImageUrl,
-          Boolean islike,
+          Boolean islikes,
           FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto) {
 
     return BestLotdPlusResponseDto.builder()
@@ -42,7 +42,7 @@ public class BestLotdPlusResponseDto {
             .accumulatedFundingAmount(
                     fundingAchievementResultOfProjectResponseDto.getAccumulatedFundingAmount())
             .projectStatus(project.getProjectStatus().getMessage())
-            .isLike(islike)
+            .isLikes(islikes)
             .build();
   }
 }

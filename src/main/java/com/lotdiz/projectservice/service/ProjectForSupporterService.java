@@ -417,7 +417,7 @@ public class ProjectForSupporterService {
       memberLikesInfoResponseDto =
           (MemberLikesInfoResponseDto)
               circuitBreaker.run(
-                  () -> memberServiceClient.getLikesWithMemberId(projectId, memberId).getData(),
+                  () -> memberServiceClient.getLikesWithMemberId(memberId, projectId).getData(),
                   throwable -> new MemberServiceClientOutOfServiceException());
 
     } else {

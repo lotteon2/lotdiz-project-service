@@ -24,12 +24,12 @@ public class SpecialExhibitionResponseDto {
   private Long accumulatedFundingAmount;
   private LocalDateTime lotdealDueTime;
   private String projectStatus;
-  private Boolean isLike;
+  private Boolean isLikes;
 
   public static SpecialExhibitionResponseDto toDto(
       Project project,
       String projectThumbnailImageUrl,
-      Boolean islike,
+      Boolean islikes,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       Lotdeal lotdeal) {
 
@@ -51,7 +51,7 @@ public class SpecialExhibitionResponseDto {
             fundingAchievementResultOfProjectResponseDto.getAccumulatedFundingAmount())
         .lotdealDueTime(lotdealDueTime)
         .projectStatus(project.getProjectStatus().getMessage())
-        .isLike(islike)
+        .isLikes(islikes)
         .build();
   }
 }

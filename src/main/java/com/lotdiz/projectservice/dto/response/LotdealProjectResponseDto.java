@@ -23,12 +23,12 @@ public class LotdealProjectResponseDto {
   private Long accumulatedFundingAmount;
   private LocalDateTime lotdealDueTime;
   private String projectStatus;
-  private Boolean isLike;
+  private Boolean isLikes;
 
   public static LotdealProjectResponseDto toDto (
       Project project,
       String projectThumbnailImageUrl,
-      Boolean islike,
+      Boolean islikes,
       FundingAchievementResultOfProjectResponseDto fundingAchievementResultOfProjectResponseDto,
       LocalDateTime lotdealDueTime) {
 
@@ -44,7 +44,7 @@ public class LotdealProjectResponseDto {
             fundingAchievementResultOfProjectResponseDto.getAccumulatedFundingAmount())
         .lotdealDueTime(lotdealDueTime)
         .projectStatus(project.getProjectStatus().getMessage())
-        .isLike(islike)
+        .isLikes(islikes)
         .build();
   }
 }
