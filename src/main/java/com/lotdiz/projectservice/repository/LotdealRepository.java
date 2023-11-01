@@ -25,10 +25,10 @@ public interface LotdealRepository extends JpaRepository<Lotdeal, Long> {
   @Query(
       value =
           "select l from Lotdeal l join fetch l.project p where p.projectIsAuthorized = :projectIsAuthorized "
-              + "and l.lotdealStartTime <= :now and l.lotdealDueTime > :now",
+              + "and (l.lotdealStartTime <= :now and l.lotdealDueTime > :now)",
       countQuery =
           "select count(l) from Lotdeal l join l.project p where p.projectIsAuthorized = :projectIsAuthorized "
-              + "and l.lotdealStartTime <= :now and l.lotdealDueTime > :now")
+              + "and (l.lotdealStartTime <= :now and l.lotdealDueTime > :now)" )
   Page<Lotdeal> findAllLotdealing(
       LocalDateTime now, Boolean projectIsAuthorized, Pageable pageable);
 }
