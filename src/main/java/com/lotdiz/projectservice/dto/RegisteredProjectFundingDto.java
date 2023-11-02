@@ -11,5 +11,5 @@ public class RegisteredProjectFundingDto {
   private String supporterName;
   private LocalDateTime fundingDate;
   private Long totalFundingAmount;
-  private DeliveryStatus deliveryStatus;
+  private String deliveryStatus;
 }

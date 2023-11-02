@@ -25,6 +25,7 @@ import com.lotdiz.projectservice.dto.response.ProjectRegisteredByMakerResponseDt
 import com.lotdiz.projectservice.dto.response.RegisteredProjectDetailForStatusResponseDto;
 import com.lotdiz.projectservice.dto.response.RegisteredProjectFundingListResponseDto;
 import com.lotdiz.projectservice.entity.Category;
+import com.lotdiz.projectservice.entity.DeliveryStatus;
 import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Maker;
 import com.lotdiz.projectservice.entity.Product;
