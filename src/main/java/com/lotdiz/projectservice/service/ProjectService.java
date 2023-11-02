@@ -4,27 +4,26 @@ import com.lotdiz.projectservice.client.DeliveryServiceClient;
 import com.lotdiz.projectservice.client.FundingServiceClient;
 import com.lotdiz.projectservice.client.MemberServiceClient;
 import com.lotdiz.projectservice.dto.DeliveryStatusOfFundingDto;
+import com.lotdiz.projectservice.dto.LotdealDueDateDto;
 import com.lotdiz.projectservice.dto.MemberFundingInformationDto;
 import com.lotdiz.projectservice.dto.MemberNameDto;
-import com.lotdiz.projectservice.dto.RegisteredProjectFundingDto;
-import com.lotdiz.projectservice.client.FundingServiceClient;
-import com.lotdiz.projectservice.dto.LotdealDueDateDto;
 import com.lotdiz.projectservice.dto.ProductInformationForRegisteredProjectDto;
 import com.lotdiz.projectservice.dto.ProjectAmountWithIdDto;
 import com.lotdiz.projectservice.dto.ProjectDto;
 import com.lotdiz.projectservice.dto.ProjectThumbnailImageDto;
+import com.lotdiz.projectservice.dto.RegisteredProjectFundingDto;
 import com.lotdiz.projectservice.dto.request.MakerRegisterRequestDto;
 import com.lotdiz.projectservice.dto.request.ProductInfoForProjectRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectAmountWithIdRequestDto;
 import com.lotdiz.projectservice.dto.request.ProjectRegisterInformationRequestDto;
 import com.lotdiz.projectservice.dto.response.DeliveryStatusResponseDto;
-import com.lotdiz.projectservice.dto.response.MemberInformationOfFundingResponseDto;
-import com.lotdiz.projectservice.dto.response.MemberNameResponseDto;
-import com.lotdiz.projectservice.dto.response.RegisteredProjectFundingListResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultMapResponseDto;
 import com.lotdiz.projectservice.dto.response.FundingAchievementResultOfProjectDetailResponseDto;
+import com.lotdiz.projectservice.dto.response.MemberInformationOfFundingResponseDto;
+import com.lotdiz.projectservice.dto.response.MemberNameResponseDto;
 import com.lotdiz.projectservice.dto.response.ProjectRegisteredByMakerResponseDto;
 import com.lotdiz.projectservice.dto.response.RegisteredProjectDetailForStatusResponseDto;
+import com.lotdiz.projectservice.dto.response.RegisteredProjectFundingListResponseDto;
 import com.lotdiz.projectservice.entity.Category;
 import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Maker;
@@ -35,9 +34,8 @@ import com.lotdiz.projectservice.entity.ProjectStatus;
 import com.lotdiz.projectservice.exception.CategoryNotfoundException;
 import com.lotdiz.projectservice.exception.DeliveryServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
-import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
-import com.lotdiz.projectservice.exception.FundingServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.MakerEntityNotfoundException;
+import com.lotdiz.projectservice.exception.MemberServiceClientOutOfServiceException;
 import com.lotdiz.projectservice.exception.ProjectEntityNotFoundException;
 import com.lotdiz.projectservice.mapper.MakerMapper;
 import com.lotdiz.projectservice.mapper.ProductMapper;
@@ -52,15 +50,10 @@ import com.lotdiz.projectservice.repository.ProjectImageRepository;
 import com.lotdiz.projectservice.repository.ProjectRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -273,12 +266,10 @@ public class ProjectService {
                     (existing, replacement) -> replacement,
                     HashMap::new));
 
-    List<ProjectDto> projectDtoList = new ArrayList<>();
-    registeredProjects
-        .getContent()
-        .forEach(
-            project ->
-                projectDtoList.add(
+    List<ProjectDto> projectDtoList =
+        registeredProjects.getContent().stream()
+            .map(
+                project ->
                     ProjectDto.builder()
                         .projectId(project.getProjectId())
                         .projectName(project.getProjectName())
@@ -292,16 +283,17 @@ public class ProjectService {
                         .fundingAchievementRate(
                             projectStatisticDtos
                                 .getFundingAchievementResultOfProjects()
-                                .get(project.getProjectId().toString())
+                                .get(project.getProjectId())
                                 .getFundingAchievementRate())
                         .accumulatedFundingAmount(
                             projectStatisticDtos
                                 .getFundingAchievementResultOfProjects()
-                                .get(project.getProjectId().toString())
+                                .get(project.getProjectId())
                                 .getAccumulatedFundingAmount())
                         .isAuthorized(project.getProjectIsAuthorized())
-                        .build()));
-
+                        .build())
+            .collect(Collectors.toList());
+    System.out.println(projectDtoList);
     return ProjectRegisteredByMakerResponseDto.builder()
         .totalPage(registeredProjects.getTotalPages())
         .projects(projectDtoList)

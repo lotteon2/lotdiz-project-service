@@ -191,7 +191,6 @@ public class ProjectRestController {
       @RequestBody ProjectRegisterInformationRequestDto projectRegisterInformationDto,
       @RequestHeader Long memberId) {
     projectService.createProject(memberId, projectRegisterInformationDto);
-
     return ResponseEntity.ok()
         .body(
             SuccessResponse.<String>builder()
@@ -255,6 +254,7 @@ public class ProjectRestController {
                   sort = {"createdAt"},
                   direction = Sort.Direction.DESC)
               Pageable pageable) {
+    log.info(String.valueOf(memberId));
 
     return ResponseEntity.ok()
         .body(

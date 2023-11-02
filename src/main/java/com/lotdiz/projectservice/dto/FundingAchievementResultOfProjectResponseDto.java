@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class FundingAchievementInfoDto {
+public class FundingAchievementResultOfProjectResponseDto {
   private String fundingAchievementRate;
   private String accumulatedFundingAmount;
 }
