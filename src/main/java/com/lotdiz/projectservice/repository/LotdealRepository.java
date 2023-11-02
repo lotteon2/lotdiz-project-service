@@ -19,7 +19,7 @@ public interface LotdealRepository extends JpaRepository<Lotdeal, Long> {
       @Param("project") Project project, @Param("now") LocalDateTime now);
 
   @Query(
-      "SELECT NEW com.lotdiz.projectservice.dto.LotdealDueDateDto(l.project.projectId, l.lotdealDueTime) FROM Lotdeal l WHERE l.project.projectId IN (:projectIds)")
+      "SELECT NEW com.lotdiz.projectservice.dto.LotdealDueDateDto(l.project.projectId, COALESCE(l.lotdealDueTime, null)) FROM Lotdeal l WHERE l.project.projectId IN (:projectIds)")
   List<LotdealDueDateDto> findLotdealDueDateByProjectId(@Param("projectIds") List<Long> projectIds);
 
   @Query(
