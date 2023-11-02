@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DeliveryStatusOfFundingDto {
   private Long fundingId;
-  private DeliveryStatus deliveryStatus;
+  private String deliveryStatus;
 }
