@@ -1,6 +1,6 @@
 package com.lotdiz.projectservice.dto.response;
 
-import com.lotdiz.projectservice.dto.FundingAchievementInfoDto;
+import com.lotdiz.projectservice.dto.FundingAchievementResultOfProjectResponseDto;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class FundingAchievementResultMapResponseDto {
-  private Map<String, FundingAchievementInfoDto>
+  private Map<Long, FundingAchievementResultOfProjectResponseDto>
       fundingAchievementResultOfProjects;
 }
