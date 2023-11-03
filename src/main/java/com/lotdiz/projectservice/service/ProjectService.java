@@ -347,19 +347,17 @@ public class ProjectService {
       Lotdeal lotdeal = Lotdeal.builder().project(project).build();
       lotdealRepository.save(lotdeal);
     }
-    Project save = null;
-    Maker savedMaker = null;
+
     // 저장
     Optional<Maker> byMemberId = makerRepository.findByMemberId(memberId);
-    if (byMemberId.isPresent()){
-       save = projectRepository.save(project);
-    }else {
+    if (byMemberId.isEmpty()) {
       project.setMaker(maker);
-      savedMaker = makerRepository.save(maker);
+      makerRepository.save(maker);
+      makerProducer.sendCreateMaker(makerMapper.makerEntityToCreateMakerRequestDto(maker));
     }
-    
-    makerProducer.sendCreateMaker(makerMapper.makerEntityToCreateMakerRequestDto(savedMaker));
+    projectRepository.save(project);
+
     projectProducer.sendCreateProject(
-        projectMapper.projectEntityToCreateProjectRequestDto(save));
+        projectMapper.projectEntityToCreateProjectRequestDto(project));
   }
 }
