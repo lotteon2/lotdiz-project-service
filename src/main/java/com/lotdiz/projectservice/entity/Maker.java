@@ -47,4 +47,28 @@ public class Maker extends BaseEntity {
   public void setMakerId(Long makerId) {
     this.makerId = makerId;
   }
+
+  public void setMakerName(String makerName) {
+    this.makerName = makerName;
+  }
+
+  public void setMakerEmail(String makerEmail) {
+    this.makerEmail = makerEmail;
+  }
+
+  public void setMakerPhoneNumber(String makerPhoneNumber) {
+    this.makerPhoneNumber = makerPhoneNumber;
+  }
+
+  public void setMakerKakaoUrl(String makerKakaoUrl) {
+    this.makerKakaoUrl = makerKakaoUrl;
+  }
+
+  public void setMakerHomeUrl(String makerHomeUrl) {
+    this.makerHomeUrl = makerHomeUrl;
+  }
+
+  public void setMakerSnsUrl(String makerSnsUrl) {
+    this.makerSnsUrl = makerSnsUrl;
+  }
 }
