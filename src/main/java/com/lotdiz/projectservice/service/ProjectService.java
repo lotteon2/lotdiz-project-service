@@ -25,7 +25,6 @@ import com.lotdiz.projectservice.dto.response.ProjectRegisteredByMakerResponseDt
 import com.lotdiz.projectservice.dto.response.RegisteredProjectDetailForStatusResponseDto;
 import com.lotdiz.projectservice.dto.response.RegisteredProjectFundingListResponseDto;
 import com.lotdiz.projectservice.entity.Category;
-import com.lotdiz.projectservice.entity.DeliveryStatus;
 import com.lotdiz.projectservice.entity.Lotdeal;
 import com.lotdiz.projectservice.entity.Maker;
 import com.lotdiz.projectservice.entity.Product;
@@ -54,6 +53,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -326,7 +326,6 @@ public class ProjectService {
             .projectTargetAmount(projectRegisterInformationDto.getProjectTargetAmount())
             .projectDueDate(projectRegisterInformationDto.getProjectDueDate())
             .category(category)
-            .maker(maker)
             .build();
 
     // 프로젝트이미지 저장 -
@@ -348,10 +347,19 @@ public class ProjectService {
       Lotdeal lotdeal = Lotdeal.builder().project(project).build();
       lotdealRepository.save(lotdeal);
     }
+    Project save = null;
+    Maker savedMaker = null;
     // 저장
-    Maker savedMaker = makerRepository.save(maker);
+    Optional<Maker> byMemberId = makerRepository.findByMemberId(memberId);
+    if (byMemberId.isPresent()){
+       save = projectRepository.save(project);
+    }else {
+      project.setMaker(maker);
+      savedMaker = makerRepository.save(maker);
+    }
+    
     makerProducer.sendCreateMaker(makerMapper.makerEntityToCreateMakerRequestDto(savedMaker));
     projectProducer.sendCreateProject(
-        projectMapper.projectEntityToCreateProjectRequestDto(project));
+        projectMapper.projectEntityToCreateProjectRequestDto(save));
   }
 }
