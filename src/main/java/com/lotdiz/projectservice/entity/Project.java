@@ -91,4 +91,8 @@ public class Project extends BaseEntity {
   public void setLotdeal(Lotdeal lotdeal) {
     this.lotdeal = lotdeal;
   }
+
+  public void setMaker(Maker maker) {
+    this.maker = maker;
+  }
 }
